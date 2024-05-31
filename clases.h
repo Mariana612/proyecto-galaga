@@ -1,6 +1,7 @@
 #include <ncurses.h>
 #include <vector>
 #include <iostream>
+#include <memory>
 
 class Nave {
 public:
@@ -26,6 +27,116 @@ public:
     void draw() {
         for (size_t i = 0; i < art.size(); ++i) { // Se realiza para cada char del dibujo de la nave
             mvaddstr(y + i, x, art[i].c_str());  // Se hace un print a la pantalla en las posiciones seleccionadas
+        }
+    }
+};
+
+class Enemy {
+public:
+    int x, y;
+    std::vector<std::string> art;
+    bool isAlive;
+
+    Enemy(int posX, int posY) : x(posX), y(posY), isAlive(true) {}
+
+    virtual void update() = 0;
+
+    virtual void draw() {
+        if (!isAlive) return;
+        for (size_t i = 0; i < art.size(); ++i) {
+            mvaddstr(y + i, x, art[i].c_str());
+        }
+    }
+
+    virtual ~Enemy() {}
+};
+
+class NormalEnemy : public Enemy {
+public:
+    NormalEnemy(int posX, int posY) : Enemy(posX, posY) {
+        art = {
+            "  /---\\  ",
+            " -- o -- ",
+            "  \\---/  "
+        };
+    }
+
+    void update() override {
+        y += 1; //Move hacia abajo
+    }
+};
+
+class TurretEnemy : public Enemy {
+public:
+    TurretEnemy(int posX, int posY) : Enemy(posX, posY) {
+        art = {
+            " [#####] ",
+            " |#####| ",
+            " |#####| "
+        };
+    }
+
+    void update() override {
+        // This enemy does not move but will shoot in future implementations
+    }
+};
+
+class BossEnemy : public Enemy {
+public:
+    BossEnemy(int posX, int posY) : Enemy(posX, posY) {
+        art = {
+            "   /---\\   ",
+            "  --WWW--  ",
+            " {#######} "
+        };
+    }
+
+    void update() override {
+        // Special behavior like stealing the player's ship can be added here
+    }
+};
+
+class Enemies {
+public:
+    std::vector<std::unique_ptr<Enemy>> enemyList;
+
+    void spawnEnemies(int numNormal, int numTurrets, int numBosses) {
+        int startX = 10;
+        int startY = 5;
+        // Spawn normal enemies
+        for (int i = 0; i < numNormal; i++) {
+            enemyList.push_back(std::make_unique<NormalEnemy>(startX, startY));
+            adjustPosition(startX, startY);
+        }
+        // Spawn turret enemies
+        for (int i = 0; i < numTurrets; i++) {
+            enemyList.push_back(std::make_unique<TurretEnemy>(startX, startY));
+            adjustPosition(startX, startY);
+        }
+        // Spawn boss enemies
+        for (int i = 0; i < numBosses; i++) {
+            enemyList.push_back(std::make_unique<BossEnemy>(startX, startY));
+            adjustPosition(startX, startY);
+        }
+    }
+
+    void adjustPosition(int& startX, int& startY) {
+        startX += 12; // Space out enemies
+        if (startX >= COLS - 10) {
+            startX = 10;
+            startY += 4;
+        }
+    }
+
+    void updateEnemies() {
+        for (auto& enemy : enemyList) {
+            enemy->update();
+        }
+    }
+
+    void drawEnemies() {
+        for (auto& enemy : enemyList) {
+            enemy->draw();
         }
     }
 };
