@@ -5,10 +5,10 @@
 
 class Nave {
 public:
-    int x, y;               // Position of the ship
-    std::vector<std::string> art; // ASCII art of the ship
-    std::vector<std::string> lifeArt; // ASCII art of a life
-    int lives = 2; // Number of lives
+    int x, y;   // Posición de la nave
+    std::vector<std::string> art; // Arte ASCII de la nave
+    std::vector<std::string> lifeArt; // Arte ASCII de las vidas
+    int lives = 2; // Cantidad de vidas
 
     Nave(int posX, int posY) : x(posX), y(posY) {
         art = {
@@ -25,21 +25,21 @@ public:
         };
     }
 
-    void moveLeft() {
+    void moveLeft() {   // Movimiento a la izquierda
         if (x > 0) --x;
     }
 
-    void moveRight(int maxWidth) {
+    void moveRight(int maxWidth) {  // Movimiento a la derecha
         if (x < maxWidth - static_cast<int>(14)) ++x; 
     }
 
-    void drawNave() {
+    void drawNave() {   // Dibujar la nave
         for (size_t i = 0; i < art.size(); ++i) {
             mvaddstr(y + i, x, art[i].c_str());
         }
     }
 
-    void drawLife(int maxX, int maxY) {
+    void drawLife(int maxX, int maxY) { // Dibujar las vidas
         int startX = maxX - (lifeArt[0].size() + 1) * lives;
         int startY = maxY - lifeArt.size();
         for (int i = 0; i < lives; ++i) {
@@ -49,11 +49,10 @@ public:
         }
     }
 
-    void decreaseLife() {
+    void decreaseLife() { // Perder una vida
         if (lives >= 0) {
         --lives;
-        napms(1000); // Wait for a second
-        x = COLS / 2 - 7; // Respawn the ship at the center
+        x = COLS / 2 - 7; // Se coloca la nave en el centro
         y = LINES - 6;
     }
     }
@@ -181,19 +180,18 @@ public:
     }
 };
 
-void handleInput(int ch, Nave& ship /*std::vector<Bullet>& bullets*/) {
+void handleInput(int ch, Nave& ship) { // Input del jugador
     switch (ch) {
-        case KEY_LEFT:            // Cuando se presiona la flecha izquierda se mueve a la izquierda
-            ship.moveLeft();
+        case KEY_LEFT:
+            ship.moveLeft();    // Cuando se presiona la flecha izquierda se mueve a la izquierda
             break;
         case KEY_RIGHT:
-            ship.moveRight(COLS); // Cuando se presiona la flecha derecha se mueve a la derecha
+            ship.moveRight(COLS);   // Cuando se presiona la flecha derecha se mueve a la derecha
             break;
         case 'd':
-            ship.decreaseLife();
+            ship.decreaseLife();    // Cuando se presiona la letra d, se pierde una vida
             break;
         /*case ' ':
-            bullets.push_back(Bullet(ship.x + 2, ship.y - 1, '|')); // Adjust x position for bullet
             break;*/
     }
 }    
