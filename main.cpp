@@ -105,30 +105,41 @@ int main() {
         }
     }
     
-    Nave ship(COLS / 2 - 2, LINES - 4);
+    Nave ship(COLS / 2 - 7, LINES - 6); // Initialize ship at the center bottom
+    ship.initializeLifeArt();           // Initialize the life art
+
     Enemies enemies;
     enemies.spawnEnemies(5, 2, 1);
 
     int ch;
-    bool gameRunning = true;
-    while (gameRunning) {
-        if ((ch = getch()) != ERR) {
-            if (ch == 'q') {
-                gameRunning = false;
-            }
-            handleInput(ch, ship); // Process input
-        }
+    clear();         // Limpiar pantalla
+    ship.drawNave();    // La nave se mueve
+    ship.drawLife(COLS / 5, LINES);
+    while ((ch = getch()) != 'q') {
+        clear();                // Limpiar pantalla
 
-        clear(); // Clear screen
-
-        enemies.updateEnemies(); // Update enemy positions and behaviors continuously
-        ship.draw(); // Draw the ship
-        enemies.drawEnemies(); // Draw all enemies
+        handleInput(ch, ship);  //Ingresar las teclas de movimiento
+        enemies.updateEnemies();
+        ship.drawNave();    // La nave se mueve
+        ship.drawLife(COLS / 5, LINES);
+        enemies.drawEnemies();
+        
+        if (ship.lives == -1) break;
 
         refresh();
         napms(20); // Delay to slow down the game loop
     }
+    clear();
+    enemies.drawEnemies();
+    ship.drawLife(COLS / 5, LINES);
+    refresh();
 
+    napms(1000);     // Se genera un delay
+    clear();
+    mvprintw(LINES / 2, COLS / 2 - 5, "FIN DEL JUEGO");
+    refresh();
+    napms(2000);     // Se genera un delay
+    
     finalize();
     return 0;
 }

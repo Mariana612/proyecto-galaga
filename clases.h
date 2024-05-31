@@ -5,29 +5,57 @@
 
 class Nave {
 public:
-    int x, y;
-    std::vector<std::string> art; // El arte de la nave es un vector
+    int x, y;               // Position of the ship
+    std::vector<std::string> art; // ASCII art of the ship
+    std::vector<std::string> lifeArt; // ASCII art of a life
+    int lives = 2; // Number of lives
 
-    Nave(int posX, int posY) : x(posX), y(posY) { // Se ocupan dos números, que son la posición de la nave
+    Nave(int posX, int posY) : x(posX), y(posY) {
         art = {
-        "      ^     ",
-        "     /-\\   ",
-        "  --¦^¦^¦-- ",
+            "      ^     ",
+            "     /-\\   ",
+            "  --¦^¦^¦-- ",
         };
     }
 
-    void moveLeft() {    //Se mueve a la izquierda
-        if (x > 0) --x; // Si se está al borde de la línea, no avance
+    void initializeLifeArt() {
+        lifeArt = {
+            "  /-\\",
+            "-|^ ^|-",
+        };
     }
 
-    void moveRight(int maxWidth) {  //Se mueve a la derecha
-        if (x < maxWidth - static_cast<int>(14)) ++x; // Si se está al borde de la línea, no avance
+    void moveLeft() {
+        if (x > 0) --x;
     }
 
-    void draw() {
-        for (size_t i = 0; i < art.size(); ++i) { // Se realiza para cada char del dibujo de la nave
-            mvaddstr(y + i, x, art[i].c_str());  // Se hace un print a la pantalla en las posiciones seleccionadas
+    void moveRight(int maxWidth) {
+        if (x < maxWidth - static_cast<int>(14)) ++x; 
+    }
+
+    void drawNave() {
+        for (size_t i = 0; i < art.size(); ++i) {
+            mvaddstr(y + i, x, art[i].c_str());
         }
+    }
+
+    void drawLife(int maxX, int maxY) {
+        int startX = maxX - (lifeArt[0].size() + 1) * lives;
+        int startY = maxY - lifeArt.size();
+        for (int i = 0; i < lives; ++i) {
+            for (size_t j = 0; j < lifeArt.size(); ++j) {
+                mvaddstr(startY + j, startX + i * (lifeArt[0].size() + 1), lifeArt[j].c_str());
+            }
+        }
+    }
+
+    void decreaseLife() {
+        if (lives >= 0) {
+        --lives;
+        napms(1000); // Wait for a second
+        x = COLS / 2 - 7; // Respawn the ship at the center
+        y = LINES - 6;
+    }
     }
 };
 
@@ -160,6 +188,9 @@ void handleInput(int ch, Nave& ship /*std::vector<Bullet>& bullets*/) {
             break;
         case KEY_RIGHT:
             ship.moveRight(COLS); // Cuando se presiona la flecha derecha se mueve a la derecha
+            break;
+        case 'd':
+            ship.decreaseLife();
             break;
         /*case ' ':
             bullets.push_back(Bullet(ship.x + 2, ship.y - 1, '|')); // Adjust x position for bullet
