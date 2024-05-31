@@ -17,6 +17,7 @@ void initialize() {
     noecho();           // No escribir los inputs realizados por el jugador en pantalla
     keypad(stdscr, TRUE); // Se habilitan las teclas del teclado
     curs_set(0);        // Esconder el cursor
+    nodelay(stdscr, TRUE); // Set getch to non-blocking
 }
 
 void finalize() {
@@ -109,23 +110,26 @@ int main() {
     enemies.spawnEnemies(5, 2, 1);
 
     int ch;
-    clear();         // Limpiar pantalla
-    ship.draw();    // La nave se mueve
-    while ((ch = getch()) != 'q') {
-        clear();                // Limpiar pantalla
+    bool gameRunning = true;
+    while (gameRunning) {
+        if ((ch = getch()) != ERR) {
+            if (ch == 'q') {
+                gameRunning = false;
+            }
+            handleInput(ch, ship); // Process input
+        }
 
-        handleInput(ch, ship);  //Ingresar las teclas de movimiento
+        clear(); // Clear screen
 
-        enemies.updateEnemies();
-        ship.draw();    // La nave se mueve
-        enemies.drawEnemies();
+        enemies.updateEnemies(); // Update enemy positions and behaviors continuously
+        ship.draw(); // Draw the ship
+        enemies.drawEnemies(); // Draw all enemies
 
         refresh();
-        napms(20);     // Se genera un delay
-
-        
+        napms(20); // Delay to slow down the game loop
     }
 
     finalize();
     return 0;
 }
+

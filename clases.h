@@ -52,8 +52,13 @@ public:
 };
 
 class NormalEnemy : public Enemy {
+private:
+    int moveDirection; // 1 for moving down, -1 for moving up
+    int moveCounter;
+    int moveThreshold;
+
 public:
-    NormalEnemy(int posX, int posY) : Enemy(posX, posY) {
+    NormalEnemy(int posX, int posY) : Enemy(posX, posY), moveDirection(1), moveCounter(0), moveThreshold(10) { // Set threshold to 10 for slower movement
         art = {
             "  /---\\  ",
             " -- o -- ",
@@ -62,7 +67,14 @@ public:
     }
 
     void update() override {
-        y += 1; //Move hacia abajo
+        moveCounter++; // Increment counter every update call
+        if (moveCounter >= moveThreshold) { // Check if counter has reached the threshold
+            moveCounter = 0; // Reset counter
+            if ((y >= LINES - static_cast<int>(art.size()) && moveDirection == 1) || (y <= 0 && moveDirection == -1)) {
+                moveDirection *= -1; // Reverse direction at the boundaries
+            }
+            y += moveDirection; // Move based on the direction
+        }
     }
 };
 
