@@ -25,6 +25,14 @@ public:
         };
     }
 
+    int width() const {
+        return art.empty() ? 0 : art[0].size();
+    }
+
+    int height() const {
+        return art.size();
+    }
+    
     void moveLeft() {   // Movimiento a la izquierda
         if (x > 0) --x;
     }
@@ -54,7 +62,7 @@ public:
         --lives;
         x = COLS / 2 - 7; // Se coloca la nave en el centro
         y = LINES - 6;
-    }
+        }
     }
 };
 
@@ -76,6 +84,13 @@ public:
 
     virtual void update(int playerX) = 0;
 
+    virtual int width() const {
+        return art.empty() ? 0 : art[0].size();
+    }
+
+    virtual int height() const {
+        return art.size();
+    }
 
 
     virtual void draw() {
@@ -89,8 +104,6 @@ public:
         }
 
     }
-
-
 
     virtual ~Enemy() {}
 
@@ -126,7 +139,13 @@ public:
 
     }
 
+    int width() const override {
+        return art.empty() ? 0 : art[0].size();
+    }
 
+    int height() const override {
+        return art.size();
+    }
 
     void update(int playerX) override {
 
@@ -216,10 +235,14 @@ public:
 
     }
 
-    State getCurrrentState() const{
+    State getCurrentState() const{
 
         return currentState;
 
+    }
+
+    void setCurrentState(State state) {
+        currentState = state;
     }
 
     void update(int playerX) override {
@@ -276,7 +299,13 @@ public:
 
     }
 
+    int width() const override {
+        return art.empty() ? 0 : art[0].size();
+    }
 
+    int height() const override {
+        return art.size();
+    }
 
     void draw() override {
 
@@ -295,6 +324,7 @@ class Enemies {
 public:
 
     std::vector<std::unique_ptr<Enemy>> enemyList;
+    std::vector<std::pair<int, int>> initialPositions;
 
 
 
@@ -302,12 +332,13 @@ public:
 
         int startX = 10;
 
-        int startY = 5;
+        int startY = 0;
 
         // Spawn normal and turret enemies
 
         for (int i = 0; i < numNormal; i++) {
 
+            initialPositions.push_back({startX, startY});
             enemyList.push_back(std::make_unique<NormalEnemy>(startX, startY));
 
             adjustPosition(startX, startY);
@@ -315,7 +346,6 @@ public:
         }
 
         for (int i = 0; i < numTurrets; i++) {
-
             enemyList.push_back(std::make_unique<TurretEnemy>(startX, startY));
 
             adjustPosition(startX, startY);
@@ -355,43 +385,39 @@ public:
         for (auto& enemy : enemyList) {
 
             enemy->update(playerX);
-
-            checkCollision(enemy.get(), player);
-
         }
 
     }
 
-
-
-    void checkCollision(Enemy* enemy, Nave& player) {
-
-        // Simplified collision detection logic
-
-        if (enemy->y == player.y && enemy->x == player.x) {
-
-            if (auto* boss = dynamic_cast<BossEnemy*>(enemy)) {
-
-                if (boss->getCurrrentState() == BossEnemy::Holding) {
-
+    bool checkCollision(const std::unique_ptr<Enemy>& enemy, Nave& player) {
+    for (int i = 0; i < player.height(); ++i) {
+        for (int j = 0; j < player.width(); ++j) {
+            int px = player.x + j;
+            int py = player.y + i;
+            if (px >= enemy->x && px < enemy->x + enemy->width() &&
+                py >= enemy->y && py < enemy->y + enemy->height()) {
+                // Collision detected
+                if (auto* boss = dynamic_cast<BossEnemy*>(enemy.get())) {
+                    if (boss->getCurrentState() == BossEnemy::Holding) {
+                        player.decreaseLife();
+                    }
+                } else if (dynamic_cast<NormalEnemy*>(enemy.get())) {
                     player.decreaseLife();
-
-                    enemy->isAlive = false; // Optionally remove the enemy
-
+                    resetPositions();
                 }
-
-            } else if (dynamic_cast<NormalEnemy*>(enemy)) {
-
-                player.decreaseLife();
-
-                enemy->isAlive = false; // Optionally remove the enemy
-
+                return true;
             }
-
         }
-
     }
+    return false;
+}
 
+    void resetPositions() {
+        for (size_t i = 0; i < enemyList.size(); ++i) {
+            enemyList[i]->x = initialPositions[i].first;
+            enemyList[i]->y = initialPositions[i].second;
+        }
+    }
 
 
     void drawEnemies() {

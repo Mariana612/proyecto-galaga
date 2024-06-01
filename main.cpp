@@ -132,13 +132,20 @@ int main() {
 
         clear();    // Limpiar pantalla
 
+        for (auto& enemy : enemies.enemyList) {
+            if (enemies.checkCollision(enemy, ship)) {
+                break;
+            }
+        }
+
+        
+        
         handleInput(ch, ship);  //Ingresar las teclas de movimiento
 
         if (ship.lives == -1) break;    // Si ya no se tienen vidas, terminar el juego
 
         if (ship.lives != vidas){ // Si se pierde una vida, dar momento de respiro al jugador
         clear();    // Limpiar pantalla
-        enemies.drawEnemies();  // Mostrar enemigos
         ship.drawLife(COLS / 5, LINES); // Mostrar vidas 
         mvprintw(LINES / 2, COLS / 2 - 5, "READY"); // Mensaje de alerta
         refresh();  // Refrescar la pantalla
