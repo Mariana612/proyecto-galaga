@@ -8,6 +8,7 @@
 #include <vector>
 #include <ncurses.h>
 #include "clases.h"
+#include <chrono>
 
 
 
@@ -17,7 +18,7 @@ void initialize() {
     noecho();           // No escribir los inputs realizados por el jugador en pantalla
     keypad(stdscr, TRUE); // Se habilitan las teclas del teclado
     curs_set(0);        // Esconder el cursor
-    nodelay(stdscr, TRUE); // Set getch to non-blocking
+    nodelay(stdscr, FALSE); // Set getch to non-blocking
 }
 
 void finalize() {
@@ -118,7 +119,17 @@ int main() {
     clear();    // Limpiar pantalla
     ship.drawNave();    // Mostrar la nave
     ship.drawLife(COLS / 5, LINES); // Mostrar las vidas
+
+    auto startTime = std::chrono::steady_clock::now();
+    bool bossSpawned = false;
+
     while ((ch = getch()) != 'q') { // Mientras no se presione la letra q, seguir con el juego
+        auto currentTime = std::chrono::steady_clock::now();
+
+        std::chrono::duration<float> elapsed = currentTime - startTime;
+
+        nodelay(stdscr, TRUE);
+
         clear();    // Limpiar pantalla
 
         handleInput(ch, ship);  //Ingresar las teclas de movimiento
@@ -135,7 +146,14 @@ int main() {
         };
 
         vidas = ship.lives; // Actualizar contador de vidas
-        enemies.updateEnemies();
+        if (elapsed.count() >= 10.0 && !bossSpawned){
+
+            enemies.spawnBoss(ship.x);
+
+            bossSpawned = true;
+
+        }
+        enemies.updateEnemies(ship.x, ship);
         ship.drawNave();    // La nave se mueve
         ship.drawLife(COLS / 5, LINES); // Mostrar vidas
         enemies.drawEnemies();
