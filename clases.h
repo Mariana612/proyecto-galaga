@@ -4,14 +4,16 @@
 #include <memory>
 #include <cstdlib>
 #include <ctime>
+#include <bala.h>
 
 class Nave {
 public:
-
-    int x, y;   // Posición de la nave
-    std::vector<std::string> art; // Arte ASCII de la nave
-    std::vector<std::string> lifeArt; // Arte ASCII de las vidas
-    int lives = 2; // Cantidad de vidas
+    int x, y;               // Position of the ship
+    std::vector<std::string> art; // ASCII art of the ship
+    std::vector<std::string> lifeArt; // ASCII art of a life
+    int lives = 2; // Number of lives
+    std::vector<Bullet> bullets; 
+    balas
 
     Nave(int posX, int posY) : x(posX), y(posY) {
         art = {
@@ -58,6 +60,10 @@ public:
                 mvaddstr(startY + j, startX + i * (lifeArt[0].size() + 1), lifeArt[j].c_str());
             }
         }
+    }
+        void shoot() {
+        int centerX = x + (art[0].size() / 2);
+        balas.push_back(Bala(centerX, y));
     }
 
     void decreaseLife() { // Perder una vida
@@ -359,7 +365,7 @@ void handleInput(int ch, Nave& ship) { // Input del jugador
         case 'd':
             ship.decreaseLife();    // Cuando se presiona la letra d, se pierde una vida
             break;
-        /*case ' ':
-            break;*/
+        case ' ':
+            
     }
 }    
