@@ -54,6 +54,7 @@ void drawTitulo(const std::vector<std::string>& titulo) {
 }
 
 int main() {
+    srand(time(0));
     initialize();
     std::vector<std::string> titulo = { // El arte del título
 " .          \\      .    _____ _____ __    _____ _____ _____", 
@@ -112,8 +113,7 @@ int main() {
     ship.initializeLifeArt();           // Asignar vidas
 
     Enemies enemies;
-    enemies.spawnEnemies(5, 2, 1);
-
+    enemies.spawnSingleRowOfEnemies(); 
     int ch; // Input del usuario
     int vidas = ship.lives; // Contador de vidas
     clear();    // Limpiar pantalla

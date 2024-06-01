@@ -2,6 +2,8 @@
 #include <vector>
 #include <iostream>
 #include <memory>
+#include <cstdlib>
+#include <ctime>
 
 class Nave {
 public:
@@ -112,59 +114,34 @@ public:
 
 
 class NormalEnemy : public Enemy {
-
 private:
-
     int moveDirection; // 1 for moving down, -1 for moving up
-
     int moveCounter;
-
     int moveThreshold;
-
-
+    float moveProbability; // Probability that this enemy will attempt to move each cycle
 
 public:
-
-    NormalEnemy(int posX, int posY) : Enemy(posX, posY), moveDirection(1), moveCounter(0), moveThreshold(10) { // Set threshold to 10 for slower movement
-
+    NormalEnemy(int posX, int posY) : Enemy(posX, posY), moveDirection(1), moveCounter(0), moveThreshold(10), moveProbability(0.5) { // 50% probability of moving
         art = {
-
             "  /---\\  ",
-
             " -- o -- ",
-
             "  \\---/  "
-
         };
-
-    }
-
-    int width() const override {
-        return art.empty() ? 0 : art[0].size();
-    }
-
-    int height() const override {
-        return art.size();
+        // Randomize the move probability between 30% to 70% for variation
+        moveProbability = 0.3f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX/(0.4f)));
     }
 
     void update(int playerX) override {
-
-        moveCounter++; // Increment counter every update call
-
-        if (moveCounter >= moveThreshold) { // Check if counter has reached the threshold
-
-            moveCounter = 0; // Reset counter
-
-            if ((y >= LINES - static_cast<int>(art.size()) && moveDirection == 1) || (y <= 0 && moveDirection == -1)) {
-
-                moveDirection *= -1; // Reverse direction at the boundaries
-
+        if (rand() % 100 < moveProbability * 100) { // Convert probability to a percentage and compare
+            moveCounter++; // Increment counter every update call
+            if (moveCounter >= moveThreshold) { // Check if counter has reached the threshold
+                moveCounter = 0; // Reset counter
+                if ((y >= LINES - static_cast<int>(art.size()) && moveDirection == 1) || (y <= 0 && moveDirection == -1)) {
+                    moveDirection *= -1; // Reverse direction at the boundaries
+                }
+                y += moveDirection; // Move based on the direction
             }
-
-            y += moveDirection; // Move based on the direction
-
         }
-
     }
 
 };
@@ -328,34 +305,35 @@ public:
 
 
 
-    void spawnEnemies(int numNormal, int numTurrets, int numBosses) {
-
+      void spawnSingleRowOfEnemies() {
+        int enemyWidth = 12;  // Approximate width of the NormalEnemy
+        int turretWidth = 10; // Approximate width of the TurretEnemy
+        int spacing = 10;     // Desired space between NormalEnemies
         int startX = 10;
+        int startY = 5;       // Starting Y position for the normal enemies
+        int turretY = startY + 4;  // Y position for turret enemies, slightly below normal enemies
 
-        int startY = 0;
+        int maxEnemiesPerRow = (COLS - startX) / (enemyWidth + spacing); // Calculate how many enemies fit per row
 
-        // Spawn normal and turret enemies
+        // Clear previous data in initialPositions
+        initialPositions.clear();
+        enemyList.clear();
 
-        for (int i = 0; i < numNormal; i++) {
-
-            initialPositions.push_back({startX, startY});
-            enemyList.push_back(std::make_unique<NormalEnemy>(startX, startY));
-
-            adjustPosition(startX, startY);
-
+        // Calculate position for NormalEnemies
+        for (int i = 0; i < maxEnemiesPerRow; ++i) {
+            int posX = startX + i * (enemyWidth + spacing);
+            if (posX + enemyWidth >= COLS) break; // Ensure enemies do not spawn off-screen
+            initialPositions.push_back({posX, startY});  // Record initial position
+            enemyList.push_back(std::make_unique<NormalEnemy>(posX, startY));
+            
+            // Calculate position for TurretEnemies in the spaces between NormalEnemies
+            if (i < maxEnemiesPerRow - 1) { // Ensure there's space for a TurretEnemy
+                int turretPosX = posX + enemyWidth + (spacing - turretWidth) / 2;
+                initialPositions.push_back({turretPosX, turretY});  // Record initial position for Turret
+                enemyList.push_back(std::make_unique<TurretEnemy>(turretPosX, turretY));
+            }
         }
-
-        for (int i = 0; i < numTurrets; i++) {
-            enemyList.push_back(std::make_unique<TurretEnemy>(startX, startY));
-
-            adjustPosition(startX, startY);
-
-        }
-
-    }
-
-
-
+}
     void spawnBoss(int posX) {
 
         enemyList.push_back(std::make_unique<BossEnemy>(posX));
@@ -413,11 +391,13 @@ public:
 }
 
     void resetPositions() {
-        for (size_t i = 0; i < enemyList.size(); ++i) {
+    for (size_t i = 0; i < enemyList.size(); ++i) {
+        if (i < initialPositions.size()) {  // Check to prevent out-of-range errors
             enemyList[i]->x = initialPositions[i].first;
             enemyList[i]->y = initialPositions[i].second;
         }
     }
+}
 
 
     void drawEnemies() {
