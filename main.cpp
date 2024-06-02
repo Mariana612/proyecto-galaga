@@ -9,6 +9,7 @@
 #include <ncurses.h>
 #include "clases.h"
 #include <chrono>
+#include <cstring>
 
 
 
@@ -53,6 +54,30 @@ void drawTitulo(const std::vector<std::string>& titulo) {
     refresh();  // Refrescar la pantalla
 }
 
+void updateScore(char* score_line, int score)
+{
+    sprintf(score_line,"SCORE:%-6d",score);
+
+}
+
+void drawScore(int num) {
+    char score_lines[][12]=
+    {
+        "__________",
+        "SCORE:    ",
+
+    };
+    int num_lines = sizeof(score_lines)/sizeof(score_lines[0]);
+    updateScore(score_lines[1],num);
+    int starty = LINES - num_lines;
+    int startx = COLS -strlen(score_lines[0]);
+
+    for(int i = 0; i < num_lines; ++i){
+        mvprintw(starty +i, startx, "%s",score_lines[i]);
+    }
+}
+
+
 enum BossSpawnState {
     InitialWait,
     WaitingForBossDeath,
@@ -64,6 +89,7 @@ BossSpawnState bossSpawnState = InitialWait;
 std::chrono::time_point<std::chrono::steady_clock> stateStartTime = std::chrono::steady_clock::now();
 
 int main() {
+    int finalScore = 0;
     srand(time(0));
     initialize();
     std::vector<std::string> titulo = {
@@ -130,6 +156,7 @@ int main() {
     clear();    // Limpiar pantalla
     ship.drawNave();    // Mostrar la nave
     ship.drawLife(COLS / 5, LINES); // Mostrar las vidas
+    drawScore(0);
 
     auto startTime = std::chrono::steady_clock::now();
 
@@ -197,7 +224,8 @@ int main() {
         ship.drawNave();    // La nave se mueve
         ship.drawLife(COLS / 5, LINES); // Mostrar vidas
         ship.updateBalasPos();
-        enemies.checkCollisionBala(ship);
+        enemies.checkCollisionBala(ship, finalScore);
+        drawScore(finalScore);
         enemies.checkBulletCollision(ship);
         ship.drawBalas();
         enemies.drawEnemies();

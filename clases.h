@@ -627,7 +627,7 @@ void handleCollision(const std::unique_ptr<Enemy>& enemy, Nave& player) {
     }
 }
 
-    void checkCollisionBala(Nave& nave) {
+    void checkCollisionBala(Nave& nave, int& finalScore) {
         for (int i = 0; i < nave.balas.size(); i++) {
             Bala bala = nave.balas[i];
 
@@ -654,10 +654,10 @@ void handleCollision(const std::unique_ptr<Enemy>& enemy, Nave& player) {
                         }
                     }  
 
-                    std::cout<< enemy->puntuacion <<std::endl;
+                    //std::cout<< enemy->puntuacion <<std::endl;
                     finalScore = finalScore + enemy->puntuacion;
-                    std::cout<< finalScore <<std::endl;
-                    napms(1000);
+                    //std::cout<< finalScore <<std::endl;
+                    //napms(1000);
                     enemy->isAlive = false;
                     nave.removeBala(i);
                     --i;
