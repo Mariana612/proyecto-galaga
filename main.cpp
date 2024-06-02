@@ -133,6 +133,8 @@ int main() {
         clear();    // Limpiar pantalla
         
         for (auto& enemy : enemies.enemyList) {
+            if (!enemy->isAlive)
+                continue;
             if (enemies.checkCollision(enemy, ship)) {
                 break;
             }
@@ -162,7 +164,9 @@ int main() {
         enemies.updateEnemies(ship.x, ship);
         ship.drawNave();    // La nave se mueve
         ship.drawLife(COLS / 5, LINES); // Mostrar vidas
-        ship.updateBalas();
+        ship.updateBalasPos();
+        enemies.checkCollisionBala(ship);
+        ship.drawBalas();
         enemies.drawEnemies();
 
         refresh();  // Refescar la pantalla

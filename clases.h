@@ -93,12 +93,34 @@ public:
         //tempbala.drawBala();
     }
 
-    void updateBalas(){
-        for(Bala bullet: balas){
+    void updateBalasPos() {
+        // itera por lista de balas usando el indice
+        // si se elimina una bala, se corrige el indice
+        for(int i = 0; i < balas.size(); i++) {
+
+            Bala& bullet = balas[i];
             bullet.moveUp();
-            bullet.drawBala();
-            
+
+            // si bala se sale de pantalla, se destruye
+            if (bullet.yposi < 0) {
+                removeBala(i);
+                continue;
+            }
         }
+    }
+
+    void drawBalas()
+    {
+        for(auto& bullet : balas) {
+            bullet.drawBala();
+        }
+    }
+
+    void removeBala(int balaIndex)
+    {
+        Bala& bullet = balas[balaIndex];
+        balas.erase(balas.begin() + balaIndex);
+        bullet.~Bala();
     }
 
     void decreaseLife() { // Perder una vida
@@ -377,6 +399,34 @@ public:
         return false;
     }
 
+    void checkCollisionBala(Nave& nave) {
+        for(int i = 0; i < nave.balas.size(); i++) {
+
+            Bala bala = nave.balas[i];
+            
+            for(auto& enemy : enemyList) {
+
+                if (!enemy->isAlive)
+                    continue;
+
+                int enemyW = enemy->x + enemy->width(),
+                    h = enemy->y + enemy->height();
+
+                bool xCheck = bala.xposi > enemy->x && bala.xposi <= enemyW;
+                bool yCheck = bala.yposi == enemy->y;// && bala.yposi <= h;
+
+                // si bala golpea un enemigo, destruye al enemigo y destruye la bala
+                if (xCheck && yCheck)
+                {
+                    enemy->isAlive = false;
+                    nave.removeBala(i);
+                    --i;
+                    break;
+                }
+            }
+        }
+    }
+
     void resetPositions() {
         for (size_t i = 0; i < enemyList.size(); ++i) {
             if (i < initialPositions.size()) {  // Check to prevent out-of-range errors
@@ -392,6 +442,9 @@ public:
         }
     }
 };
+
+
+
 
 void handleInput(int ch, Nave& ship) { // Input del jugador
     switch (ch) {
