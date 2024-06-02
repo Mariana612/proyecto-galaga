@@ -346,7 +346,6 @@ public:
                 break;
             
             case LateralMove:
-                mvprintw(LINES / 2, COLS / 2 - 5, "Hello"); // Imprimir mensaje
                 x += lateralDirection;
                 if (x <= 0 || x >= COLS - static_cast<int>(art[0].size())) {
                     lateralDirection *= -1; // Change direction when hitting screen borders
