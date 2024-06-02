@@ -53,26 +53,37 @@ void drawTitulo(const std::vector<std::string>& titulo) {
     refresh();  // Refrescar la pantalla
 }
 
+enum BossSpawnState {
+    InitialWait,
+    WaitingForBossDeath,
+    DelayAfterDeath,
+    ReadyToSpawn
+};
+
+BossSpawnState bossSpawnState = InitialWait;
+std::chrono::time_point<std::chrono::steady_clock> stateStartTime = std::chrono::steady_clock::now();
+
 int main() {
     srand(time(0));
     initialize();
-    std::vector<std::string> titulo = { // El arte del título
-" .          \\      .    _____ _____ __    _____ _____ _____", 
-"      .      \\   ,     |   __|  _  |  |  |  _  |   __|  _  |",
-"   .          o     .  |  |  |     |  |__|     |  |  |     |", 
-"     .         \\       |_____|__|__|_____|__|__|_____|__|__|", 
-"               #\\##\\#      .                              .   ", 
-"             #  #O##\\###                .                      ",
-"   .        #*#  #\\##\\###                       .             ",
-"        .   ##*#  #\\##\\##               .                     ",
-"      .      ##*#  #o##\\#         .                            ",
-"          .     *#  #\\#     .                    .             ",
-"                      \\          .                         .",
-"____^/\\___^--____/\\____O______________/\\/\\---/\\___________-",
-"   /\\^   ^  ^    ^                  ^^ ^  '\\ ^          ^     ",
-"         --           -            --  -      -         ---  __ ",
-"   --  __                      ___--  ^  ^                      "
-        };
+    std::vector<std::string> titulo = {
+        // El arte del título
+        " .          \\      .    _____ _____ __    _____ _____ _____",
+        "      .      \\   ,     |   __|  _  |  |  |  _  |   __|  _  |",
+        "   .          o     .  |  |  |     |  |__|     |  |  |     |",
+        "     .         \\       |_____|__|__|_____|__|__|_____|__|__|",
+        "               #\\##\\#      .                              .   ",
+        "             #  #O##\\###                .                      ",
+        "   .        #*#  #\\##\\###                       .             ",
+        "        .   ##*#  #\\##\\##               .                     ",
+        "      .      ##*#  #o##\\#         .                            ",
+        "          .     *#  #\\#     .                    .             ",
+        "                      \\          .                         .",
+        "____^/\\___^--____/\\____O______________/\\/\\---/\\___________-",
+        "   /\\^   ^  ^    ^                  ^^ ^  '\\ ^          ^     ",
+        "         --           -            --  -      -         ---  __ ",
+        "   --  __                      ___--  ^  ^                      "
+    };
 
     drawTitulo(titulo); // Llamar a la función que muestra el título en pantalla
     napms(5000); // Delay de 5 segundos
@@ -121,7 +132,6 @@ int main() {
     ship.drawLife(COLS / 5, LINES); // Mostrar las vidas
 
     auto startTime = std::chrono::steady_clock::now();
-    bool bossSpawned = false;
 
     while ((ch = getch()) != 'q') { // Mientras no se presione la letra q, seguir con el juego
         auto currentTime = std::chrono::steady_clock::now();
@@ -142,9 +152,39 @@ int main() {
 
         if (ship.lives == -1) break;    // Si ya no se tienen vidas, terminar el juego
 
-        if (elapsed.count() >= 10.0 && !bossSpawned){
-            enemies.spawnBoss(ship.x);
-            bossSpawned = true;
+        std::chrono::duration<double> elapsedGameTime = currentTime - startTime;
+        std::chrono::duration<double> elapsedStateTime = currentTime - stateStartTime;
+
+        // Handle the boss spawning state machine
+        switch (bossSpawnState) {
+            case InitialWait:
+                if (elapsedGameTime.count() >= 10.0) {
+                    enemies.spawnBoss(ship.x);
+                    stateStartTime = currentTime;
+                    bossSpawnState = WaitingForBossDeath;
+                }
+                break;
+
+            case WaitingForBossDeath:
+                if (enemies.isBossDead()) {
+                    stateStartTime = currentTime;
+                    bossSpawnState = DelayAfterDeath;
+                }
+                break;
+
+            case DelayAfterDeath:
+                if (elapsedStateTime.count() >= 7.0) {
+                    bossSpawnState = ReadyToSpawn;
+                }
+                break;
+
+            case ReadyToSpawn:
+                if (enemies.isBossDead()) {
+                    enemies.spawnBoss(ship.x);
+                    stateStartTime = currentTime;
+                    bossSpawnState = WaitingForBossDeath;
+                }
+                break;
         }
 
         if (enemies.areAllNonBossEnemiesDefeated()){
@@ -159,7 +199,6 @@ int main() {
         ship.updateBalasPos();
         enemies.checkCollisionBala(ship);
         enemies.checkBulletCollision(ship);
-        
         ship.drawBalas();
         enemies.drawEnemies();
 

@@ -607,6 +607,20 @@ void handleCollision(const std::unique_ptr<Enemy>& enemy, Nave& player) {
         return true;  // If all non-boss enemies are defeated, return true
     }
 
+    bool isBossDead() {
+    for (const auto& enemy : enemyList) {
+        if (auto* boss = dynamic_cast<BossEnemy*>(enemy.get())) {
+            if (boss->isAlive) {
+                return false;  // If boss is still alive, return false
+            }
+        }
+    }
+    if (showSecondShip) {
+        return false;  // If the second ship is shown, return false
+    }
+    return true;  // If boss is dead and player doesn't have a second ship, return true
+}
+
     void drawEnemies() {
         for (auto& enemy : enemyList) {
             enemy->draw();
