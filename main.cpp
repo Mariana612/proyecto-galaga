@@ -131,14 +131,12 @@ int main() {
         nodelay(stdscr, TRUE);
 
         clear();    // Limpiar pantalla
-
+        
         for (auto& enemy : enemies.enemyList) {
             if (enemies.checkCollision(enemy, ship)) {
                 break;
             }
         }
-
-        
         
         handleInput(ch, ship);  //Ingresar las teclas de movimiento
 
@@ -160,6 +158,7 @@ int main() {
             bossSpawned = true;
 
         }
+        
         enemies.updateEnemies(ship.x, ship);
         ship.drawNave();    // La nave se mueve
         ship.drawLife(COLS / 5, LINES); // Mostrar vidas
