@@ -507,14 +507,14 @@ void handleBulletCollision(Nave& player) {
         showSecondShip = false;
     }
 
-    /*if (player.lives != -1) { // Si se pierde una vida, dar momento de respiro al jugador
+    if (player.lives != -1) { // Si se pierde una vida, dar momento de respiro al jugador
             clear();    // Limpiar pantalla
             player.drawLife(COLS / 5, LINES); // Mostrar vidas 
             mvprintw(LINES / 2, COLS / 2 - 5, "READY"); // Mensaje de alerta
             refresh();  // Refrescar la pantalla
             napms(2000);    // Se genera un delay de 2 segundos
         }
-        resetPositions();*/
+        resetPositions();
 
 }
 
