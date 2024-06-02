@@ -42,16 +42,21 @@ public:
     }
 
     void moveRight(int maxWidth) {  // Movimiento a la derecha
-        if (x < maxWidth - static_cast<int>(9)) ++x; 
+            if (showSecondShip == true){
+                if (x < maxWidth - static_cast<int>(24)) ++x;
+            };
+            if (showSecondShip == false){
+                if (x < maxWidth - static_cast<int>(12)) ++x;
+            }
     }
 
     void drawNave() {   // Draw the ship
         for (size_t i = 0; i < art.size(); ++i) {
             mvaddstr(y + i, x, art[i].c_str());
         }
-        if (showSecondShip) { // Draw the second ship if the flag is set
+        if (showSecondShip == true) { // Draw the second ship if the flag is set
             for (size_t i = 0; i < art.size(); ++i) {
-                mvaddstr(y + i, x + 11, art[i].c_str()); // Position the second ship to the right
+                mvaddstr(y + i, x + 12, art[i].c_str()); // Position the second ship to the right
             }
         }
     }
@@ -67,10 +72,18 @@ public:
     }
 
     void decreaseLife() { // Perder una vida
-        if (lives >= 0) {
-        --lives;
-        x = COLS / 2 - 7; // Se coloca la nave en el centro
-        y = LINES - 6;
+        if (showSecondShip == false) { // Draw the second ship if the flag is set
+            if (lives >= 0) {
+                --lives;
+                x = COLS / 2 - 7; // Se coloca la nave en el centro
+                y = LINES - 6;
+            }  
+        }
+        if (showSecondShip == true) { // Draw the second ship if the flag is set
+            if (lives >= 0) {
+                x = COLS / 2 - 7; // Se coloca la nave en el centro
+                y = LINES - 6;
+            }  
         }
     }
 };
@@ -201,7 +214,7 @@ public:
                 if (moveCounter >= moveThreshold) {
                     moveCounter = 0; // Reset counter once threshold is reached
                     y += 1; // Move down slowly
-                    if (y >= LINES / 1.2) { // Change this condition to control where it stops
+                    if (y >= LINES / 1.3) { // Change this condition to control where it stops
                         currentState = Holding; // Change state to holding
                     }
                 }
@@ -315,14 +328,17 @@ public:
                             if (player.lives != 0){
                                 player.decreaseLife();
                                 showSecondShip = true;
+                                resetPositions();
                             }else if(player.lives == 0){
                                 player.decreaseLife();
+                                resetPositions();
                             }
                         }
                     } else if (dynamic_cast<NormalEnemy*>(enemy.get())) {
                         if(showSecondShip == false){
-                        player.decreaseLife();
+                            player.decreaseLife();
                         } else if (showSecondShip == true){
+                            player.decreaseLife();
                             showSecondShip = false;
                         };
                         if (player.lives != -1){ // Si se pierde una vida, dar momento de respiro al jugador

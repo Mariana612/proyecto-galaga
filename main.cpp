@@ -137,27 +137,15 @@ int main() {
                 break;
             }
         }
-        
-        handleInput(ch, ship);  //Ingresar las teclas de movimiento
 
         if (ship.lives == -1) break;    // Si ya no se tienen vidas, terminar el juego
 
-        if (ship.lives != vidas){ // Si se pierde una vida, dar momento de respiro al jugador
-        clear();    // Limpiar pantalla
-        ship.drawLife(COLS / 5, LINES); // Mostrar vidas 
-        mvprintw(LINES / 2, COLS / 2 - 5, "READY"); // Mensaje de alerta
-        refresh();  // Refrescar la pantalla
-        napms(2000);    // Se genera un delay de 2 segundos
-        };
-
-        vidas = ship.lives; // Actualizar contador de vidas
         if (elapsed.count() >= 10.0 && !bossSpawned){
-
             enemies.spawnBoss(ship.x);
-
             bossSpawned = true;
-
         }
+
+        handleInput(ch, ship);  //Ingresar las teclas de movimiento
         
         enemies.updateEnemies(ship.x, ship);
         ship.drawNave();    // La nave se mueve
