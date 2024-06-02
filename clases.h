@@ -6,6 +6,7 @@
 #include <ctime>
 
 bool showSecondShip = false; // Flag to show the second ship
+int finalScore = 0;
 
 class Bala {
 public:
@@ -161,9 +162,11 @@ public:
 class Enemy {
 public:
     int x, y;
+    int puntuacion;
     std::vector<std::string> art;
     bool isAlive;
 
+    Enemy(int initialpuntuacion): puntuacion(initialpuntuacion){}
     Enemy(int posX, int posY) : x(posX), y(posY), isAlive(true) {}
 
     virtual void update(int playerX, int playerY, Nave& player) = 0;
@@ -193,13 +196,16 @@ private:
     int moveCounter;
     int moveThreshold;
     float moveProbability; // Probability that this enemy will attempt to move each cycle
+    
 
 public:
     NormalEnemy(int posX, int posY) : Enemy(posX, posY), moveDirection(1), moveCounter(0), moveThreshold(5), moveProbability(0.5) { // 50% probability of moving
+        puntuacion = 100;
         art = {
             "  /---\\  ",
             "  \\-o-/  "
         };
+
         // Randomize the move probability between 30% to 70% for variation
         moveProbability = 0.3f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX/(0.4f)));
     }
@@ -228,6 +234,7 @@ private:
 
 public:
     TurretEnemy(int posX, int posY) : Enemy(posX, posY) {
+        puntuacion = 300;
         art = {
             "[#####]",
             "|#####|"
@@ -303,6 +310,7 @@ private:
 public:
 
     BossEnemy(int posX) : Enemy(posX, 0), currentState(Descending), lateralDirection(1), moveCounter(0), moveThreshold(10) {
+        puntuacion = 500;
         art = {
             "  /---\\",
             " --WWW--",
@@ -533,8 +541,12 @@ void handleCollision(const std::unique_ptr<Enemy>& enemy, Nave& player) {
                                 resetPositions();
                             }
                         }
-                    }
+                    }  
 
+                    std::cout<< enemy->puntuacion <<std::endl;
+                    finalScore = finalScore + enemy->puntuacion;
+                    std::cout<< finalScore <<std::endl;
+                    napms(1000);
                     enemy->isAlive = false;
                     nave.removeBala(i);
                     --i;
