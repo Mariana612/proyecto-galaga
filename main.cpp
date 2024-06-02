@@ -159,6 +159,7 @@ int main() {
         ship.updateBalasPos();
         enemies.checkCollisionBala(ship);
         enemies.checkBulletCollision(ship);
+        
         ship.drawBalas();
         enemies.drawEnemies();
 

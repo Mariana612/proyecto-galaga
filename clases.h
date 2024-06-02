@@ -66,7 +66,7 @@ public:
 
     void moveRight(int maxWidth) {  // Movimiento a la derecha
             if (showSecondShip == true){
-                if (x < maxWidth - static_cast<int>(24)) ++x;
+                if (x < maxWidth - static_cast<int>(30)) ++x;
             };
             if (showSecondShip == false){
                 if (x < maxWidth - static_cast<int>(12)) ++x;
@@ -94,10 +94,20 @@ public:
         }
     }
     void shoot() {
-        int centerX = x + (art[0].size() / 2);
-        Bala tempbala = Bala(centerX, y);
-        balas.push_back(tempbala);
-        //tempbala.drawBala();
+        if (showSecondShip == true){
+            int center1 = x + 4;
+            Bala tempbala1 = Bala(center1, y);
+            balas.push_back(tempbala1);
+
+            int center2 = x + 22;
+            Bala tempbala2 = Bala(center2, y);
+            balas.push_back(tempbala2);
+        };
+        if (showSecondShip == false){
+            int centerX = x + 4;
+            Bala tempbala = Bala(centerX, y);
+            balas.push_back(tempbala);
+        }
     }
 
     void updateBalasPos() {
@@ -156,7 +166,7 @@ public:
 
     Enemy(int posX, int posY) : x(posX), y(posY), isAlive(true) {}
 
-    virtual void update(int playerX, int playerY) = 0;
+    virtual void update(int playerX, int playerY, Nave& player) = 0;
 
     virtual int width() const {
         return art.empty() ? 0 : art[0].size();
@@ -194,7 +204,7 @@ public:
         moveProbability = 0.3f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX/(0.4f)));
     }
 
-    void update(int playerX, int playerY) override {
+    void update(int playerX, int playerY, Nave& player) override {
         if (rand() % 100 < moveProbability * 100) { // Convert probability to a percentage and compare
             moveCounter++; // Increment counter every update call
             if (moveCounter >= moveThreshold) { // Check if counter has reached the threshold
@@ -214,7 +224,7 @@ private:
     int moveCounter = 0; // Counter
     int shootCounter = 0; // Counter
     int moveThreshold = 10; // Shoot cada 10 updates
-    int shootThreshold = 40; // Shoot cada 40 updates
+    int shootThreshold = 60; // Shoot cada 60 updates
 
 public:
     TurretEnemy(int posX, int posY) : Enemy(posX, posY) {
@@ -239,7 +249,7 @@ public:
         }
     }
 
-        void update(int playerX, int playerY) override {
+        void update(int playerX, int playerY, Nave& player) override {
             if (!isAlive) {
                 bullets.clear(); // Optionally clear all bullets when not alive
                 return; // Stop updating when not alive
@@ -308,9 +318,8 @@ public:
         currentState = state;
     }
 
-    void update(int playerX, int playerY) override {
+    void update(int playerX, int playerY, Nave& player) override {
         switch (currentState) {
-
             case Descending:
                 moveCounter++; // Increment the counter each time update is called
                 if (moveCounter >= moveThreshold) {
@@ -321,31 +330,29 @@ public:
                     }
                 }
                 break;
-            case Holding:
-                // Stay in position, check for collision with player
-                if (x == playerX) { // Simplified collision detection
-                    currentState = HasPlayer; // Change to lateral movement
-                    y = 0; // Optionally move to top if that's needed after collision
-                } else if (x != playerX) { // Simplified collision detection
-                    currentState = LateralMove; // Change to lateral movement
-                    y = 0; // Optionally move to top if that's needed after collision
-                }
-                break;
 
-            case LateralMove:
-                x += lateralDirection;
-                if (x <= 0 || x >= COLS - static_cast<int>(art[0].size())) {
-                    lateralDirection *= -1; // Change direction when hitting screen borders
-                }
+            case Holding:
+                    currentState = LateralMove; // Change to LateralMove if not touching the player
+                    y = 0; // Optionally move to top if that's needed after collision
                 break;
 
             case HasPlayer:
+                y = 0; // Optionally move to top if that's needed after collision
+                mvprintw(LINES / 2, COLS / 2 - 5, "NAVE CAPTURADA"); // Imprimir mensaje
                 x += lateralDirection;
-
                 if (x <= 0 || x >= COLS - static_cast<int>(art[0].size())) {
                     lateralDirection *= -1; // Change direction when hitting screen borders
                 }
                 break;
+            
+            case LateralMove:
+                mvprintw(LINES / 2, COLS / 2 - 5, "Hello"); // Imprimir mensaje
+                x += lateralDirection;
+                if (x <= 0 || x >= COLS - static_cast<int>(art[0].size())) {
+                    lateralDirection *= -1; // Change direction when hitting screen borders
+                }
+                break;
+
         }
     }
 
@@ -368,6 +375,7 @@ public:
 
     std::vector<std::unique_ptr<Enemy>> enemyList;
     std::vector<std::pair<int, int>> initialPositions;
+    bool enoughLives = true;
 
       void spawnSingleRowOfEnemies() {
         int enemyWidth = 12;  // Approximate width of the NormalEnemy
@@ -413,7 +421,7 @@ public:
 
     void updateEnemies(int playerX, Nave& player) {
         for (auto& enemy : enemyList) {
-            enemy->update(playerX, player.y);
+            enemy->update(playerX, player.y, player);
         }
     }
 
@@ -434,7 +442,7 @@ public:
 
     // Check collision for the second ship if it is shown
     if (showSecondShip) {
-        int secondShipX = player.x + 18; // Calculate second ship's X position
+        int secondShipX = player.x + 15; // Calculate second ship's X position
         for (int i = 0; i < player.height(); ++i) {
             for (int j = 0; j < player.width(); ++j) {
                 int px = secondShipX + j;
@@ -470,16 +478,17 @@ bool checkBulletCollision(Nave& player) {
 
 void handleCollision(const std::unique_ptr<Enemy>& enemy, Nave& player) {
     if (auto* boss = dynamic_cast<BossEnemy*>(enemy.get())) {
-        if (boss->getCurrentState() == BossEnemy::Holding) {
-            if (player.lives != 0) {
-                player.decreaseLife();
-                showSecondShip = true;
-                resetPositions();
-            } else if (player.lives == 0) {
-                player.decreaseLife();
-                resetPositions();
+            player.decreaseLife();
+            if (boss->getCurrentState() == BossEnemy::Holding) {
+                boss->setCurrentState(BossEnemy::HasPlayer); // Set the state to HasPlayer
+                if (player.lives != -1) {
+                    enoughLives = true;
+                    resetPositions();
+                } else if (player.lives == -1) {
+                    enoughLives = false;
+                    resetPositions();
+                }
             }
-        }
     } else if (dynamic_cast<NormalEnemy*>(enemy.get())) {
         if (!showSecondShip) {
             player.decreaseLife();
@@ -499,24 +508,32 @@ void handleCollision(const std::unique_ptr<Enemy>& enemy, Nave& player) {
 }
 
     void checkCollisionBala(Nave& nave) {
-        for(int i = 0; i < nave.balas.size(); i++) {
-
+        for (int i = 0; i < nave.balas.size(); i++) {
             Bala bala = nave.balas[i];
-            
-            for(auto& enemy : enemyList) {
+
+            for (auto& enemy : enemyList) {
 
                 if (!enemy->isAlive)
                     continue;
 
-                int enemyW = enemy->x + enemy->width(),
-                    h = enemy->y + enemy->height();
+                int enemyW = enemy->x + enemy->width();
+                int h = enemy->y + enemy->height();
 
                 bool xCheck = bala.xposi > enemy->x && bala.xposi <= enemyW;
-                bool yCheck = bala.yposi == enemy->y;// && bala.yposi <= h;
+                bool yCheck = bala.yposi == enemy->y; // && bala.yposi <= h;
 
-                // si bala golpea un enemigo, destruye al enemigo y destruye la bala
-                if (xCheck && yCheck)
-                {
+                // If bullet hits an enemy, destroy the enemy and the bullet
+                if (xCheck && yCheck) {
+
+                    if (auto* boss = dynamic_cast<BossEnemy*>(enemy.get())) {
+                        if (boss->getCurrentState() == BossEnemy::HasPlayer) {
+                            if (enoughLives == true) {
+                                showSecondShip = true;
+                                resetPositions();
+                            }
+                        }
+                    }
+
                     enemy->isAlive = false;
                     nave.removeBala(i);
                     --i;
@@ -555,9 +572,6 @@ void handleCollision(const std::unique_ptr<Enemy>& enemy, Nave& player) {
         spawnSingleRowOfEnemies();
     }
 };
-
-
-
 
 void handleInput(int ch, Nave& ship) { // Input del jugador
     switch (ch) {
