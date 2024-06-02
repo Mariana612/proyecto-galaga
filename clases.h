@@ -468,21 +468,54 @@ public:
 }
 
 bool checkBulletCollision(Nave& player) {
+    int secondShipOffsetX = 18; // Assuming the second ship is offset by 18 units in the X direction
+
     for (auto& enemy : enemyList) {
         if (auto* turret = dynamic_cast<TurretEnemy*>(enemy.get())) { // Check if enemy is a TurretEnemy
             for (int i = 0; i < turret->bullets.size(); ++i) {
                 auto& bullet = turret->bullets[i];
-                // Check if bullet's coordinates intersect with player's coordinates
-                if (bullet.xposi >= player.x && bullet.xposi < player.x + player.width() &&
-                    bullet.yposi >= player.y && bullet.yposi < player.y + player.height()) {
-                    player.decreaseLife();  // Player loses a life
+                
+                // Check if bullet's coordinates intersect with the primary player's coordinates
+                bool hitPrimary = bullet.xposi >= player.x && bullet.xposi < player.x + 12 &&
+                                  bullet.yposi >= player.y && bullet.yposi < player.y + 3;
+                
+                // Check if bullet's coordinates intersect with the second ship's coordinates
+                bool hitSecondShip = showSecondShip && // Only check if the second ship is shown
+                                     bullet.xposi >= player.x + secondShipOffsetX &&
+                                     bullet.xposi < player.x + secondShipOffsetX + 12 &&
+                                     bullet.yposi >= player.y &&
+                                     bullet.yposi < player.y + 3;
+
+                if (hitPrimary || hitSecondShip) {
                     turret->bullets.erase(turret->bullets.begin() + i); // Erase the bullet that collided
+                    handleBulletCollision(player);
                     return true;  // Return true if collision happens
                 }
             }
         }
     }
     return false;
+}
+
+void handleBulletCollision(Nave& player) {
+    if(!showSecondShip){
+        player.decreaseLife();  // Player loses a life
+
+    };
+    if(showSecondShip){
+        player.decreaseLife();
+        showSecondShip = false;
+    }
+
+    /*if (player.lives != -1) { // Si se pierde una vida, dar momento de respiro al jugador
+            clear();    // Limpiar pantalla
+            player.drawLife(COLS / 5, LINES); // Mostrar vidas 
+            mvprintw(LINES / 2, COLS / 2 - 5, "READY"); // Mensaje de alerta
+            refresh();  // Refrescar la pantalla
+            napms(2000);    // Se genera un delay de 2 segundos
+        }
+        resetPositions();*/
+
 }
 
 void handleCollision(const std::unique_ptr<Enemy>& enemy, Nave& player) {
