@@ -600,7 +600,7 @@ void handleCollision(const std::unique_ptr<Enemy>& enemy, Nave& player) {
 
     bool areAllNonBossEnemiesDefeated(){
          for (const auto& enemy : enemyList) {
-            if (dynamic_cast<BossEnemy*>(enemy.get()) == nullptr && enemy->isAlive) {
+            if (enemy->isAlive) {
                 return false;  // If any non-boss enemy is still alive, return false
             }
         }
