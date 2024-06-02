@@ -16,16 +16,16 @@ public:
 
     Nave(int posX, int posY) : x(posX), y(posY) {
         art = {
-            "    ^    ",
-            "   /-\\  ",
-            "--¦^¦^¦--",
+            "    ^",
+            "   /-\\",
+            "--¦^¦^¦--"
         };
     }
 
     void initializeLifeArt() {
         lifeArt = {
-            "  /-\\ ",
-            "-|^ ^|-",
+            "  /-\\  ",
+            "-|^ ^|-"
         };
     }
 
@@ -54,9 +54,9 @@ public:
         for (size_t i = 0; i < art.size(); ++i) {
             mvaddstr(y + i, x, art[i].c_str());
         }
-        if (showSecondShip == true) { // Draw the second ship if the flag is set
+        if (showSecondShip) { // Draw the second ship if the flag is set
             for (size_t i = 0; i < art.size(); ++i) {
-                mvaddstr(y + i, x + 12, art[i].c_str()); // Position the second ship to the right
+                mvaddstr(y + i, x + static_cast<int>(18), art[i].c_str()); // Position the second ship to the right
             }
         }
     }
@@ -316,46 +316,69 @@ public:
     }
 
     bool checkCollision(const std::unique_ptr<Enemy>& enemy, Nave& player) {
+    // Check collision for the primary ship
+    for (int i = 0; i < player.height(); ++i) {
+        for (int j = 0; j < player.width(); ++j) {
+            int px = player.x + j;
+            int py = player.y + i;
+            if (px >= enemy->x && px < enemy->x + enemy->width() &&
+                py >= enemy->y && py < enemy->y + enemy->height()) {
+                // Collision detected with the primary ship
+                handleCollision(enemy, player);
+                return true;
+            }
+        }
+    }
+
+    // Check collision for the second ship if it is shown
+    if (showSecondShip) {
+        int secondShipX = player.x + 18; // Calculate second ship's X position
         for (int i = 0; i < player.height(); ++i) {
             for (int j = 0; j < player.width(); ++j) {
-                int px = player.x + j;
+                int px = secondShipX + j;
                 int py = player.y + i;
                 if (px >= enemy->x && px < enemy->x + enemy->width() &&
                     py >= enemy->y && py < enemy->y + enemy->height()) {
-                    // Collision detected
-                    if (auto* boss = dynamic_cast<BossEnemy*>(enemy.get())) {
-                        if (boss->getCurrentState() == BossEnemy::Holding) {
-                            if (player.lives != 0){
-                                player.decreaseLife();
-                                showSecondShip = true;
-                                resetPositions();
-                            }else if(player.lives == 0){
-                                player.decreaseLife();
-                                resetPositions();
-                            }
-                        }
-                    } else if (dynamic_cast<NormalEnemy*>(enemy.get())) {
-                        if(showSecondShip == false){
-                            player.decreaseLife();
-                        } else if (showSecondShip == true){
-                            player.decreaseLife();
-                            showSecondShip = false;
-                        };
-                        if (player.lives != -1){ // Si se pierde una vida, dar momento de respiro al jugador
-                            clear();    // Limpiar pantalla
-                            player.drawLife(COLS / 5, LINES); // Mostrar vidas 
-                            mvprintw(LINES / 2, COLS / 2 - 5, "READY"); // Mensaje de alerta
-                            refresh();  // Refrescar la pantalla
-                            napms(2000);    // Se genera un delay de 2 segundos
-                        };
-                        resetPositions();
-                    }
+                    // Collision detected with the second ship
+                    handleCollision(enemy, player);
                     return true;
                 }
             }
         }
-        return false;
     }
+
+    return false;
+}
+
+void handleCollision(const std::unique_ptr<Enemy>& enemy, Nave& player) {
+    if (auto* boss = dynamic_cast<BossEnemy*>(enemy.get())) {
+        if (boss->getCurrentState() == BossEnemy::Holding) {
+            if (player.lives != 0) {
+                player.decreaseLife();
+                showSecondShip = true;
+                resetPositions();
+            } else if (player.lives == 0) {
+                player.decreaseLife();
+                resetPositions();
+            }
+        }
+    } else if (dynamic_cast<NormalEnemy*>(enemy.get())) {
+        if (!showSecondShip) {
+            player.decreaseLife();
+        } else {
+            player.decreaseLife();
+            showSecondShip = false;
+        }
+        if (player.lives != -1) { // Si se pierde una vida, dar momento de respiro al jugador
+            clear();    // Limpiar pantalla
+            player.drawLife(COLS / 5, LINES); // Mostrar vidas 
+            mvprintw(LINES / 2, COLS / 2 - 5, "READY"); // Mensaje de alerta
+            refresh();  // Refrescar la pantalla
+            napms(2000);    // Se genera un delay de 2 segundos
+        }
+        resetPositions();
+    }
+}
 
     void resetPositions() {
         for (size_t i = 0; i < enemyList.size(); ++i) {
