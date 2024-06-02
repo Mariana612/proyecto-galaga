@@ -14,9 +14,9 @@ public:
 
     Nave(int posX, int posY) : x(posX), y(posY) {
         art = {
-            "      ^     ",
-            "     /-\\   ",
-            "  --¦^¦^¦-- ",
+            "     ^    ",
+            "    /-\\  ",
+            " --¦^¦^¦--",
         };
     }
 
@@ -124,7 +124,6 @@ public:
     NormalEnemy(int posX, int posY) : Enemy(posX, posY), moveDirection(1), moveCounter(0), moveThreshold(5), moveProbability(0.5) { // 50% probability of moving
         art = {
             "  /---\\  ",
-            " -- o -- ",
             "  \\---/  "
         };
         // Randomize the move probability between 30% to 70% for variation
@@ -149,7 +148,9 @@ public:
 
 
 class TurretEnemy : public Enemy {
-
+private:
+    int moveCounter = 0; // Counter to control movement speed
+    int moveThreshold = 30; // Move every 30 updates
 public:
 
     TurretEnemy(int posX, int posY) : Enemy(posX, posY) {
@@ -169,11 +170,15 @@ public:
 
 
     void update(int playerX, int playerY) override {
-
-        // This enemy does not move but will shoot in future implementations
-
+        moveCounter++;
+        if (moveCounter >= moveThreshold) {
+            moveCounter = 0; // Reset counter
+            x--; // Move left
+            if (x + width() < 0) { // Check if the entire width of the enemy has moved off-screen
+                x = COLS - 1; // Reset position to the far right side of the screen
+            }
+        }
     }
-
 };
 
 
@@ -327,12 +332,12 @@ public:
             enemyList.push_back(std::make_unique<NormalEnemy>(posX, startY));
             
             // Calculate position for TurretEnemies in the spaces between NormalEnemies
-            if (i < maxEnemiesPerRow - 1) { // Ensure there's space for a TurretEnemy
-                int turretPosX = posX + enemyWidth + (spacing - turretWidth) / 2;
-                initialPositions.push_back({turretPosX, turretY});  // Record initial position for Turret
-                enemyList.push_back(std::make_unique<TurretEnemy>(turretPosX, turretY));
-            }
+             if (i % 2 == 0 && i < maxEnemiesPerRow - 1) { // Spawn turret every other normal enemy
+            int turretPosX = posX + enemyWidth + (spacing - turretWidth) / 2;
+            initialPositions.push_back({turretPosX, turretY});  // Record initial position for Turret
+            enemyList.push_back(std::make_unique<TurretEnemy>(turretPosX, turretY));
         }
+    }
 }
     void spawnBoss(int posX) {
 
