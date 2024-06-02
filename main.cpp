@@ -147,6 +147,10 @@ int main() {
             bossSpawned = true;
         }
 
+        if (enemies.areAllNonBossEnemiesDefeated()){
+            enemies.spawnNewWave();
+        }
+
         handleInput(ch, ship);  //Ingresar las teclas de movimiento
         
         enemies.updateEnemies(ship.x, ship);
@@ -154,6 +158,7 @@ int main() {
         ship.drawLife(COLS / 5, LINES); // Mostrar vidas
         ship.updateBalasPos();
         enemies.checkCollisionBala(ship);
+        enemies.checkBulletCollision(ship);
         ship.drawBalas();
         enemies.drawEnemies();
 

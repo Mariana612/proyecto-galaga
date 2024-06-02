@@ -22,7 +22,9 @@ public:
         mvaddch(yposi, xposi, '|'); // Dibuja la bala en la posición (x, y)
         refresh();
     }
-
+    void moveDown(){
+        yposi = yposi + 1;
+    }
     
 };
 
@@ -209,11 +211,12 @@ public:
 
 class TurretEnemy : public Enemy {
 private:
-    int moveCounter = 0; // Counter to control movement speed
-    int moveThreshold = 30; // Move every 30 updates
+    int moveCounter = 0; // Counter
+    int shootCounter = 0; // Counter
+    int moveThreshold = 10; // Shoot cada 10 updates
+    int shootThreshold = 40; // Shoot cada 40 updates
 
 public:
-
     TurretEnemy(int posX, int posY) : Enemy(posX, posY) {
         art = {
             "[#####]",
@@ -221,17 +224,58 @@ public:
         };
     }
 
+    std::vector<Bala> bullets;
 
+    void shoot() {
+        if (!isAlive) return; // Do not shoot if the turret is not alive
+        int centerX = x + (width() / 2);
+        Bala tempBala(centerX, y + height()); // Bullet starts from the bottom of the turret
+        bullets.push_back(tempBala);
+    }
 
-    void update(int playerX, int playerY) override {
-        moveCounter++;
-        if (moveCounter >= moveThreshold) {
-            moveCounter = 0; // Reset counter
-            x--; // Move left
-            if (x + width() < 0) { // Check if the entire width of the enemy has moved off-screen
-                x = COLS - 1; // Reset position to the far right side of the screen
+    void drawBullets() {
+        for (auto& bullet : bullets) {
+            bullet.drawBala();
+        }
+    }
+
+        void update(int playerX, int playerY) override {
+            if (!isAlive) {
+                bullets.clear(); // Optionally clear all bullets when not alive
+                return; // Stop updating when not alive
+            }
+
+            // Update movement
+            moveCounter++;
+            if (moveCounter >= moveThreshold) {
+                moveCounter = 0;
+                x--; // Move left
+                if (x + width() < 0) { // If the turret goes off-screen, reset to the far right
+                    x = COLS - 1;
+                }
+            }
+
+            // Update shooting
+            shootCounter++;
+            if (shootCounter >= shootThreshold) {
+                shootCounter = 0;
+                shoot(); // Turret shoots a bullet
+            }
+            
+            // Update bullets' positions
+            for (int i = 0; i < bullets.size(); ++i) {
+                bullets[i].moveDown();
+                if (bullets[i].yposi >= LINES) { // Remove bullets that go off the bottom of the screen
+                    bullets.erase(bullets.begin() + i);
+                    --i;
+                }
             }
         }
+
+    void draw() override {
+        if (!isAlive) return; // Do not draw if not alive
+        Enemy::draw(); // Call base class draw method
+        drawBullets(); // Draw bullets
     }
 };
 
@@ -408,6 +452,22 @@ public:
     return false;
 }
 
+bool checkBulletCollision(Nave& player) {
+    for (auto& enemy : enemyList) {
+        if (auto* turret = dynamic_cast<TurretEnemy*>(enemy.get())) { // Check if enemy is a TurretEnemy
+            for (auto& bullet : turret->bullets) {
+                // Check if bullet's coordinates intersect with player's coordinates
+                if (bullet.xposi >= player.x && bullet.xposi < player.x + player.width() &&
+                    bullet.yposi >= player.y && bullet.yposi < player.y + player.height()) {
+                    player.decreaseLife();  // Player loses a life
+                    return true;  // Return true if collision happens
+                }
+            }
+        }
+    }
+    return false;
+}
+
 void handleCollision(const std::unique_ptr<Enemy>& enemy, Nave& player) {
     if (auto* boss = dynamic_cast<BossEnemy*>(enemy.get())) {
         if (boss->getCurrentState() == BossEnemy::Holding) {
@@ -475,10 +535,24 @@ void handleCollision(const std::unique_ptr<Enemy>& enemy, Nave& player) {
         }
     }
 
+    bool areAllNonBossEnemiesDefeated(){
+         for (const auto& enemy : enemyList) {
+            if (dynamic_cast<BossEnemy*>(enemy.get()) == nullptr && enemy->isAlive) {
+                return false;  // If any non-boss enemy is still alive, return false
+            }
+        }
+        return true;  // If all non-boss enemies are defeated, return true
+    }
+
     void drawEnemies() {
         for (auto& enemy : enemyList) {
             enemy->draw();
         }
+    }
+
+    void spawnNewWave(){
+        enemyList.clear();
+        spawnSingleRowOfEnemies();
     }
 };
 
