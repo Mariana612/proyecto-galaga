@@ -462,11 +462,13 @@ public:
 bool checkBulletCollision(Nave& player) {
     for (auto& enemy : enemyList) {
         if (auto* turret = dynamic_cast<TurretEnemy*>(enemy.get())) { // Check if enemy is a TurretEnemy
-            for (auto& bullet : turret->bullets) {
+            for (int i = 0; i < turret->bullets.size(); ++i) {
+                auto& bullet = turret->bullets[i];
                 // Check if bullet's coordinates intersect with player's coordinates
                 if (bullet.xposi >= player.x && bullet.xposi < player.x + player.width() &&
                     bullet.yposi >= player.y && bullet.yposi < player.y + player.height()) {
                     player.decreaseLife();  // Player loses a life
+                    turret->bullets.erase(turret->bullets.begin() + i); // Erase the bullet that collided
                     return true;  // Return true if collision happens
                 }
             }
