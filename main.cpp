@@ -151,6 +151,7 @@ int main() {
         enemies.updateEnemies(ship.x, ship);
         ship.drawNave();    // La nave se mueve
         ship.drawLife(COLS / 5, LINES); // Mostrar vidas
+        ship.updateBalas();
         enemies.drawEnemies();
 
         refresh();  // Refescar la pantalla

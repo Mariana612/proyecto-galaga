@@ -4,7 +4,25 @@
 #include <memory>
 #include <cstdlib>
 #include <ctime>
-#include <bala.h>
+
+class Bala {
+public:
+    int xposi, yposi;
+
+    Bala(int posX, int posY) : xposi(posX), yposi(posY) {}
+
+    // Método para mover la bala hacia arriba
+    void moveUp() {
+        yposi = yposi - 1;
+    }
+    
+    void drawBala() {
+        mvaddch(yposi, xposi, '|'); // Dibuja la bala en la posición (x, y)
+        refresh();
+    }
+
+    
+};
 
 class Nave {
 public:
@@ -12,8 +30,8 @@ public:
     std::vector<std::string> art; // ASCII art of the ship
     std::vector<std::string> lifeArt; // ASCII art of a life
     int lives = 2; // Number of lives
-    std::vector<Bullet> bullets; 
-    balas
+    std::vector<Bala> balas; 
+    
 
     Nave(int posX, int posY) : x(posX), y(posY) {
         art = {
@@ -61,9 +79,19 @@ public:
             }
         }
     }
-        void shoot() {
+    void shoot() {
         int centerX = x + (art[0].size() / 2);
-        balas.push_back(Bala(centerX, y));
+        Bala tempbala = Bala(centerX, y);
+        balas.push_back(tempbala);
+        //tempbala.drawBala();
+    }
+
+    void updateBalas(){
+        for(Bala bullet: balas){
+            bullet.moveUp();
+            bullet.drawBala();
+            
+        }
     }
 
     void decreaseLife() { // Perder una vida
@@ -74,6 +102,7 @@ public:
         }
     }
 };
+
 
 class Enemy {
 public:
@@ -366,6 +395,8 @@ void handleInput(int ch, Nave& ship) { // Input del jugador
             ship.decreaseLife();    // Cuando se presiona la letra d, se pierde una vida
             break;
         case ' ':
+            ship.shoot();
+            break;
             
     }
 }    
