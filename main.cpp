@@ -251,8 +251,9 @@ int main() {
         napms(1000);    // Se genera un delay de 1 segundo
         clear();    // Limpiar pantalla
         mvprintw(LINES / 2, COLS / 2 - 5, "FIN DEL JUEGO"); // Imprimir mensaje
+        mvprintw(LINES / 2 +1, COLS / 2 - 5, "SCORE:%d",finalScore); // Imprimir mensaje
         refresh();  // Refrescar la pantalla
-        napms(2000);    // Se genera un delay de 2 segundos
+        napms(4000);    // Se genera un delay de 2 segundos
     }
     else{
         napms(1000);    // Se genera un delay de 1 segundo
@@ -260,7 +261,7 @@ int main() {
         mvprintw(LINES / 2, COLS / 2 - 5, "GANASTE"); // Imprimir mensaje
         mvprintw(LINES / 2 +1, COLS / 2 - 5, "SCORE:%d",finalScore); // Imprimir mensaje
         refresh();  // Refrescar la pantalla
-        napms(2000);    // Se genera un delay de 2 segundos
+        napms(4000);    // Se genera un delay de 2 segundos
     }
     finalize(); // Terminar programa
     return 0;
