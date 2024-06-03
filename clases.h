@@ -383,6 +383,7 @@ public:
     std::vector<std::unique_ptr<Enemy>> enemyList;
     std::vector<std::pair<int, int>> initialPositions;
     bool enoughLives = true;
+    int currentWave = 1;
 
       void spawnSingleRowOfEnemies() {
         int enemyWidth = 12;  // Approximate width of the NormalEnemy
@@ -413,6 +414,83 @@ public:
         }
     }
 }
+
+ void spawnWave() {
+        int startX = 10;
+        int startY = 5;
+        int turretY = startY + 4;
+        int normalWidth = 12;  // Width of NormalEnemy
+        int turretWidth = 10;  // Width of TurretEnemy
+
+        // Initial spacing - this may be adjusted
+        int spacing = 10;
+        int numberOfEnemies;
+
+            
+        // Clear the current list of enemies
+        enemyList.clear();
+
+        switch (currentWave) {
+            case 1:
+            numberOfEnemies = 3; // 2 Normal + 1 Turret
+            adjustSpacing(normalWidth, numberOfEnemies, spacing);
+            enemyList.push_back(std::make_unique<NormalEnemy>(startX, startY));
+            enemyList.push_back(std::make_unique<NormalEnemy>(startX + normalWidth + spacing, startY));
+            enemyList.push_back(std::make_unique<TurretEnemy>(startX + 2 * (normalWidth + spacing), turretY));
+            break;
+        case 2:
+            numberOfEnemies = 4; // 2 Normal + 2 Turret
+            adjustSpacing(normalWidth, numberOfEnemies, spacing);
+            enemyList.push_back(std::make_unique<NormalEnemy>(startX, startY));
+            enemyList.push_back(std::make_unique<NormalEnemy>(startX + normalWidth + spacing, startY));
+            enemyList.push_back(std::make_unique<TurretEnemy>(startX + 2 * (normalWidth + spacing), turretY));
+            enemyList.push_back(std::make_unique<TurretEnemy>(startX + 3 * (normalWidth + spacing), turretY));
+            break;
+        case 3:
+            // For wave 3, calculate spacing for normal enemies separately as turrets are on a different row
+            numberOfEnemies = (COLS - startX) / normalWidth; // Max possible normal enemies in one row
+            adjustSpacing(normalWidth, numberOfEnemies, spacing);
+            spawnRowOfEnemies(startX, startY, normalWidth, spacing);
+            enemyList.push_back(std::make_unique<TurretEnemy>(startX, turretY));
+            enemyList.push_back(std::make_unique<TurretEnemy>(startX + (normalWidth + spacing), turretY));
+            break;
+        default:
+            // Default wave pattern used after the third wave
+            spawnSingleRowOfEnemies();
+            break;
+    }
+}
+
+    void adjustSpacing(int width, int numberOfEnemies, int &spacing) {
+        int totalWidth = (width + spacing) * numberOfEnemies - spacing;  // Total width if they were placed with the initial spacing
+        int availableSpace = COLS - (2 * 10);  // Available horizontal space
+
+        // Increase spacing if there is extra room
+        while (totalWidth < availableSpace) {
+            spacing += 2;  // Increase spacing gradually
+            totalWidth = (width + spacing) * numberOfEnemies - spacing;
+            if (totalWidth > availableSpace) {
+                spacing -= 2;  // Reduce back if it exceeds available space
+                break;
+            }
+        }
+    }
+
+     void spawnRowOfEnemies(int startX, int startY, int width, int spacing) {
+        int posX = startX;
+        while (posX + width < COLS) {
+            enemyList.push_back(std::make_unique<NormalEnemy>(posX, startY));
+            posX += width + spacing;
+        }
+    }
+
+    void updateWave() {
+        if (areAllNonBossEnemiesDefeated()) {
+            currentWave++;
+            spawnWave(); // Spawn the next wave
+        }
+    }
+
     void spawnBoss(int posX) {
         enemyList.push_back(std::make_unique<BossEnemy>(posX));
     }

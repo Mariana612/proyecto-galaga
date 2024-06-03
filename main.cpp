@@ -124,7 +124,7 @@ int main() {
     ship.initializeLifeArt();           // Asignar vidas
 
     Enemies enemies;
-    enemies.spawnSingleRowOfEnemies(); 
+    enemies.spawnWave(); 
     int ch; // Input del usuario
     int vidas = ship.lives; // Contador de vidas
     clear();    // Limpiar pantalla
@@ -188,7 +188,7 @@ int main() {
         }
 
         if (enemies.areAllNonBossEnemiesDefeated()){
-            enemies.spawnNewWave();
+            enemies.updateWave();
         }
 
         handleInput(ch, ship);  //Ingresar las teclas de movimiento
