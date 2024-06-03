@@ -19,7 +19,7 @@ void initialize() {
     noecho();           // No escribir los inputs realizados por el jugador en pantalla
     keypad(stdscr, TRUE); // Se habilitan las teclas del teclado
     curs_set(0);        // Esconder el cursor
-    nodelay(stdscr, FALSE); // Set getch to non-blocking
+    nodelay(stdscr, FALSE); // Set getch a non-blocking
 }
 
 void finalize() {
@@ -54,8 +54,9 @@ void drawTitulo(const std::vector<std::string>& titulo) {
     refresh();  // Refrescar la pantalla
 }
 
+// Imprimir instrucciones
 void drawInstructions() {
-    std::vector<std::string> instructions; // ASCII art of the ship
+    std::vector<std::string> instructions; // ASCII art de las instrucciones
     instructions = {
             "    ___ _  _  ___ _____ ___ _   _  ___ ___ ___ ___  _  _ ___ ___ ",
             "   |_ _| \\| /  __|_   _| _ \\ | | |/ __/ __|_ _/ _ \\| \\| | __/ __|",
@@ -82,7 +83,7 @@ void drawInstructions() {
         };
     
     clear();    // Limpiar pantalla
-    int y = LINES / 2 - instructions.size() / 2;  // Imprimir el título en el centro
+    int y = LINES / 2 - instructions.size() / 2;  // Imprimir las instrucciones en el centro
     int x = COLS / 2 - instructions[0].size() / 2;
     for (size_t i = 0; i < instructions.size(); ++i) {
         mvaddstr(y + i, x, instructions[i].c_str()); // Imprimir el texto
@@ -115,17 +116,22 @@ void drawScore(int num) {
 }
 
 
-enum BossSpawnState {
-    InitialWait,
-    WaitingForBossDeath,
-    DelayAfterDeath,
-    ReadyToSpawn
+enum BossSpawnState {   // Estados del boss Galaga para aparezca varias veces
+    InitialWait,    // El boss se espera unos segundos antes de aparecer por primera vez
+    WaitingForBossDeath, // Se espera a que se muera el boss
+    DelayAfterDeath,    // Delay después de que se muere
+    ReadyToSpawn    // Listo para volver a aparecer
 };
 
 BossSpawnState bossSpawnState = InitialWait;
+// Tiempo de los estados
 std::chrono::time_point<std::chrono::steady_clock> stateStartTime = std::chrono::steady_clock::now();
 
 int main() {
+    bool restartGame = true;
+
+    do {
+    
     int finalScore = 0;
     bool won = false;
     srand(time(0));
@@ -152,9 +158,8 @@ int main() {
     drawTitulo(titulo); // Llamar a la función que muestra el título en pantalla
     napms(5000); // Delay de 5 segundos
     std::vector<std::string> menuOptions = {"INICIAR JUEGO", "INSTRUCCIONES", "    SALIR    "};  // Opciones del menú
-    int highlight = 0;
-
-    bool running = true;
+    int highlight = 0;  // Contador de opción señalada
+    bool running = true;    // Se está corriendo el menú
     while (running) {
         drawMenu(menuOptions, highlight); // Llamar a la función que muestra el menú en pantalla
 
@@ -178,7 +183,7 @@ int main() {
                 } else if (highlight == 1) {
                     //Desplegar instrucciones
                     drawInstructions();
-                    getch();  // Wait for any key press
+                    getch();  // Esperar a que se ingrese una tecla
                 }else if (highlight == 2) {
                     //Terminar el programa
                     finalize();
@@ -199,15 +204,15 @@ int main() {
     ship.drawLife(COLS / 5, LINES); // Mostrar las vidas
     drawScore(0);
 
-    auto startTime = std::chrono::steady_clock::now();
-    auto gameStartTime = std::chrono::steady_clock::now();
-    const double delayPeriod = 4.0; // Delay period in seconds
+    auto startTime = std::chrono::steady_clock::now();  // Tiempo de inicio del juego
+    auto gameStartTime = std::chrono::steady_clock::now();  // Tiempo de inicio del juego
+    const double delayPeriod = 4.0; // Periodo de delay antes de que aparezcan los enemigos
 
     while ((ch = getch()) != 'q') { // Mientras no se presione la letra q, seguir con el juego
-        auto currentTime = std::chrono::steady_clock::now();
+        auto currentTime = std::chrono::steady_clock::now();    // Tiempo actual
 
-        std::chrono::duration<float> elapsed = currentTime - startTime;
-        std::chrono::duration<double> elapsedGameTime = currentTime - gameStartTime;
+        std::chrono::duration<float> elapsed = currentTime - startTime; // Tiempo que ha pasado
+        std::chrono::duration<double> elapsedGameTime = currentTime - gameStartTime;    // Tiempo que ha pasado
 
         nodelay(stdscr, TRUE);
 
@@ -223,40 +228,43 @@ int main() {
 
         if (ship.lives == -1) break;    // Si ya no se tienen vidas, terminar el juego
 
-        // Handle the boss spawning state machine
+        // Los estados del boss
         std::chrono::duration<double> elapsedStateTime = currentTime - stateStartTime;
         switch (bossSpawnState) {
-            case InitialWait:
-                if (elapsedGameTime.count() >= 30.0) {
+            case InitialWait:   // Estado inicial de espera
+                if (elapsedGameTime.count() >= 30.0) {  // Cuando hayan pasado 30 segundos, aparece el boss
                     enemies.spawnBoss(ship.x);
                     stateStartTime = currentTime;
-                    bossSpawnState = WaitingForBossDeath;
+                    bossSpawnState = WaitingForBossDeath;   // El estado cambia
                 }
                 break;
 
             case WaitingForBossDeath:
-                if (enemies.isBossDead()) {
+                // Si el boss está muerto, entonces se espera un momento antes de que aparezca
+                if (enemies.isBossDead()) { 
                     stateStartTime = currentTime;
-                    bossSpawnState = DelayAfterDeath;
+                    bossSpawnState = DelayAfterDeath;   // El estado cambia
                 }
                 break;
 
             case DelayAfterDeath:
+                // Se esperan 12 segundos antes de que pueda volver a aparecer
                 if (elapsedStateTime.count() >= 12.0) {
-                    bossSpawnState = ReadyToSpawn;
+                    bossSpawnState = ReadyToSpawn;  // El estado cambia
                 }
                 break;
 
             case ReadyToSpawn:
+                // Si el boss está muerto y el jugador solo tiene una nave, puede volver a aparecer
                 if (enemies.isBossDead()) {
                     enemies.spawnBoss(ship.x);
                     stateStartTime = currentTime;
-                    bossSpawnState = WaitingForBossDeath;
+                    bossSpawnState = WaitingForBossDeath;   // El estado cambia
                 }
                 break;
         }
 
-        // Spawn enemies after delay period
+        // Los enemigos aparecen después de un delay
         if (elapsedGameTime.count() >= delayPeriod) {
             if (enemies.areAllNonBossEnemiesDefeated()) {
                 enemies.updateWave();
@@ -292,18 +300,22 @@ int main() {
         napms(1000);    // Se genera un delay de 1 segundo
         clear();    // Limpiar pantalla
         mvprintw(LINES / 2, COLS / 2 - 5, "FIN DEL JUEGO"); // Imprimir mensaje
-        mvprintw(LINES / 2 +1, COLS / 2 - 5, "SCORE:%d",finalScore); // Imprimir mensaje
+        mvprintw(LINES / 2 +1, COLS / 2 - 5, "SCORE:%d",finalScore); // Imprimir puntuación
         refresh();  // Refrescar la pantalla
-        napms(6000);    // Se genera un delay de 4 segundos
+        napms(6000);    // Se genera un delay de 6 segundos
     }
     else{
         napms(1000);    // Se genera un delay de 1 segundo
         clear();    // Limpiar pantalla
         mvprintw(LINES / 2, COLS / 2 - 5, "GANASTE"); // Imprimir mensaje
-        mvprintw(LINES / 2 +1, COLS / 2 - 5, "SCORE:%d",finalScore); // Imprimir mensaje
+        mvprintw(LINES / 2 +1, COLS / 2 - 5, "SCORE:%d",finalScore); // Imprimir puntuación
         refresh();  // Refrescar la pantalla
-        napms(6000);    // Se genera un delay de 4 segundos
+        napms(6000);    // Se genera un delay de 6 segundos
     }
+
     finalize(); // Terminar programa
+
+    } while (restartGame);
+
     return 0;
 }
