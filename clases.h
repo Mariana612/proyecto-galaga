@@ -426,6 +426,9 @@ public:
         int spacing = 10;
         int numberOfEnemies;
 
+        if (currentWave== 3){
+            currentWave = 1;
+        }
             
         // Clear the current list of enemies
         enemyList.clear();
