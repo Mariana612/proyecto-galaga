@@ -346,6 +346,7 @@ public:
 
             case HasPlayer:
                 y = 0; // Optionally move to top if that's needed after collision
+                mvprintw(LINES / 2, COLS / 2 - 5, "NAVE CAPTURADA"); // Imprimir mensaje
                 x += lateralDirection;
                 if (x <= 0 || x >= COLS - static_cast<int>(art[0].size())) {
                     lateralDirection *= -1; // Change direction when hitting screen borders
@@ -382,7 +383,7 @@ public:
     std::vector<std::unique_ptr<Enemy>> enemyList;
     std::vector<std::pair<int, int>> initialPositions;
     bool enoughLives = true;
-    int currentWave = 1;
+    int currentWave = 0;
 
       void spawnSingleRowOfEnemies() {
         int enemyWidth = 12;  // Approximate width of the NormalEnemy
@@ -426,7 +427,7 @@ public:
         int numberOfEnemies;
 
         if (currentWave== 3){
-            currentWave = 1;
+            currentWave = 0;
         }
             
         // Clear the current list of enemies
