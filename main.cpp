@@ -150,7 +150,6 @@ int main() {
     ship.initializeLifeArt();           // Asignar vidas
 
     Enemies enemies;
-    enemies.spawnWave(); 
     int ch; // Input del usuario
     int vidas = ship.lives; // Contador de vidas
     clear();    // Limpiar pantalla
@@ -159,11 +158,14 @@ int main() {
     drawScore(0);
 
     auto startTime = std::chrono::steady_clock::now();
+    auto gameStartTime = std::chrono::steady_clock::now();
+    const double delayPeriod = 4.0; // Delay period in seconds
 
     while ((ch = getch()) != 'q') { // Mientras no se presione la letra q, seguir con el juego
         auto currentTime = std::chrono::steady_clock::now();
 
         std::chrono::duration<float> elapsed = currentTime - startTime;
+        std::chrono::duration<double> elapsedGameTime = currentTime - gameStartTime;
 
         nodelay(stdscr, TRUE);
 
@@ -179,13 +181,11 @@ int main() {
 
         if (ship.lives == -1) break;    // Si ya no se tienen vidas, terminar el juego
 
-        std::chrono::duration<double> elapsedGameTime = currentTime - startTime;
-        std::chrono::duration<double> elapsedStateTime = currentTime - stateStartTime;
-
         // Handle the boss spawning state machine
+        std::chrono::duration<double> elapsedStateTime = currentTime - stateStartTime;
         switch (bossSpawnState) {
             case InitialWait:
-                if (elapsedGameTime.count() >= 10.0) {
+                if (elapsedGameTime.count() >= 20.0) {
                     enemies.spawnBoss(ship.x);
                     stateStartTime = currentTime;
                     bossSpawnState = WaitingForBossDeath;
@@ -214,8 +214,11 @@ int main() {
                 break;
         }
 
-        if (enemies.areAllNonBossEnemiesDefeated()){
-            enemies.updateWave();
+        // Spawn enemies after delay period
+        if (elapsedGameTime.count() >= delayPeriod) {
+            if (enemies.areAllNonBossEnemiesDefeated()) {
+                enemies.updateWave();
+            }
         }
 
         handleInput(ch, ship);  //Ingresar las teclas de movimiento
@@ -246,4 +249,3 @@ int main() {
     finalize(); // Terminar programa
     return 0;
 }
-

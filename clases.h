@@ -417,8 +417,8 @@ public:
 
  void spawnWave() {
         int startX = 10;
-        int startY = 5;
-        int turretY = startY + 4;
+        int startY = -3;
+        int turretY = startY + 15;
         int normalWidth = 12;  // Width of NormalEnemy
         int turretWidth = 10;  // Width of TurretEnemy
 
