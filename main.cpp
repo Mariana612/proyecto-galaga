@@ -54,6 +54,43 @@ void drawTitulo(const std::vector<std::string>& titulo) {
     refresh();  // Refrescar la pantalla
 }
 
+void drawInstructions() {
+    std::vector<std::string> instructions; // ASCII art of the ship
+    instructions = {
+            "    ___ _  _  ___ _____ ___ _   _  ___ ___ ___ ___  _  _ ___ ___ ",
+            "   |_ _| \\| /  __|_   _| _ \\ | | |/ __/ __|_ _/ _ \\| \\| | __/ __|",
+            "    | || .  \\__  \\ | | |   / |_| | (_ | (_ | | (_) | .` | _|\\__ \\",
+            "   |___|_|\\_| ___/ |_| |_|_\\ ___/ \\___\\___|___\\___/|_|\\_|___|___/",
+            "                                                                ",
+            "CONTROLES: [<-] para moverse a la izquierda, [->] para moverse a la derecha,",
+            " ",
+            "           [_____] para disparar",
+            " ",
+            "Para ganar el juego se debe llegar a más de 9999 puntos",
+            " ",
+            "TRES TIPOS DE ENEMIGOS:",
+            " ",
+            "  /---\\     [#####]      /---\\",
+            "  \\-o-/     |#####|     --WWW--",
+            "                       {#######}",
+            " ",
+            "El último es el boss Galaga. Si el jugador tiene suficientes vidas se lleva la",
+            "nave del jugador. Si se destruye al enemigo, se recupera la nave y el jugador",
+            "puede utilizar ambas.",
+            " ",
+            "PRESIONE CUALQUIER TECLA PARA DEVOLVERSE AL MENU...",
+        };
+    
+    clear();    // Limpiar pantalla
+    int y = LINES / 2 - instructions.size() / 2;  // Imprimir el título en el centro
+    int x = COLS / 2 - instructions[0].size() / 2;
+    for (size_t i = 0; i < instructions.size(); ++i) {
+        mvaddstr(y + i, x, instructions[i].c_str()); // Imprimir el texto
+    }
+    refresh();  // Refrescar la pantalla
+}
+
+
 void updateScore(char* score_line, int score)
 {
     sprintf(score_line,"SCORE:%-6d",score);
@@ -114,7 +151,7 @@ int main() {
 
     drawTitulo(titulo); // Llamar a la función que muestra el título en pantalla
     napms(5000); // Delay de 5 segundos
-    std::vector<std::string> menuOptions = {"Empezar Juego", "Salir"};  // Opciones del menú
+    std::vector<std::string> menuOptions = {"INICIAR JUEGO", "INSTRUCCIONES", "    SALIR    "};  // Opciones del menú
     int highlight = 0;
 
     bool running = true;
@@ -133,12 +170,16 @@ int main() {
                 if (highlight == 0) {
                     // Iniciar el juego
                     clear();    // Limpiar pantalla
-                    // Imprimir mensaje
-                    mvprintw(LINES / 2, COLS / 2 - 5, "Empezando Juego...");
+                    // Imprimir mensaje de inicio del juego
+                    mvprintw(LINES / 2, COLS / 2 - 5, "EMPEZANDO JUEGO...");
                     refresh();  // Refrescar la pantalla
                     napms(2000); // Delay de 2 segundos
                     running = false; // Salirse del loop a donde está el juego
                 } else if (highlight == 1) {
+                    //Desplegar instrucciones
+                    drawInstructions();
+                    getch();  // Wait for any key press
+                }else if (highlight == 2) {
                     //Terminar el programa
                     finalize();
                     return 0;
@@ -186,7 +227,7 @@ int main() {
         std::chrono::duration<double> elapsedStateTime = currentTime - stateStartTime;
         switch (bossSpawnState) {
             case InitialWait:
-                if (elapsedGameTime.count() >= 20.0) {
+                if (elapsedGameTime.count() >= 30.0) {
                     enemies.spawnBoss(ship.x);
                     stateStartTime = currentTime;
                     bossSpawnState = WaitingForBossDeath;
@@ -201,7 +242,7 @@ int main() {
                 break;
 
             case DelayAfterDeath:
-                if (elapsedStateTime.count() >= 7.0) {
+                if (elapsedStateTime.count() >= 12.0) {
                     bossSpawnState = ReadyToSpawn;
                 }
                 break;
@@ -253,7 +294,7 @@ int main() {
         mvprintw(LINES / 2, COLS / 2 - 5, "FIN DEL JUEGO"); // Imprimir mensaje
         mvprintw(LINES / 2 +1, COLS / 2 - 5, "SCORE:%d",finalScore); // Imprimir mensaje
         refresh();  // Refrescar la pantalla
-        napms(4000);    // Se genera un delay de 2 segundos
+        napms(6000);    // Se genera un delay de 4 segundos
     }
     else{
         napms(1000);    // Se genera un delay de 1 segundo
@@ -261,7 +302,7 @@ int main() {
         mvprintw(LINES / 2, COLS / 2 - 5, "GANASTE"); // Imprimir mensaje
         mvprintw(LINES / 2 +1, COLS / 2 - 5, "SCORE:%d",finalScore); // Imprimir mensaje
         refresh();  // Refrescar la pantalla
-        napms(4000);    // Se genera un delay de 2 segundos
+        napms(6000);    // Se genera un delay de 4 segundos
     }
     finalize(); // Terminar programa
     return 0;
