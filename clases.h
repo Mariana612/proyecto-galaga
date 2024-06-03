@@ -346,7 +346,6 @@ public:
 
             case HasPlayer:
                 y = 0; // Optionally move to top if that's needed after collision
-                mvprintw(LINES / 2, COLS / 2 - 5, "NAVE CAPTURADA"); // Imprimir mensaje
                 x += lateralDirection;
                 if (x <= 0 || x >= COLS - static_cast<int>(art[0].size())) {
                     lateralDirection *= -1; // Change direction when hitting screen borders
@@ -605,6 +604,9 @@ void handleCollision(const std::unique_ptr<Enemy>& enemy, Nave& player) {
             if (boss->getCurrentState() == BossEnemy::Holding) {
                 boss->setCurrentState(BossEnemy::HasPlayer); // Set the state to HasPlayer
                 if (player.lives != -1) {
+                    mvprintw(LINES / 2, COLS / 2 - 5, "NAVE CAPTURADA"); // Imprimir mensaje
+                    refresh();
+                    napms(2000);
                     enoughLives = true;
                     resetPositions();
                 } else if (player.lives == -1) {
