@@ -1,5 +1,5 @@
 /*
-    Authors: Carmen Hidalgo Paz, Valeria Duran Muñoz & Mariana Navarro Jiménez
+    Authors: Carmen Hidalgo Paz, Valeria Durán Muñoz & Mariana Navarro Jiménez
     date: 04/06/2024
     description: Juego Galaga en la terminal 
 */
@@ -71,9 +71,9 @@ void drawInstructions() {
             " ",
             "TRES TIPOS DE ENEMIGOS:",
             " ",
-            "  /---\\     [#####]      /---\\",
-            "  \\-o-/     |#####|     --WWW--",
-            "                       {#######}",
+            "  /---\\     .'='.      /---\\",
+            "  \\-o-/     /|=|\\     --WWW--",
+            "                     {#######}",
             " ",
             "El último es el boss Galaga. Si el jugador tiene suficientes vidas se lleva la",
             "nave del jugador. Si se destruye al enemigo, se recupera la nave y el jugador",
@@ -193,7 +193,7 @@ int main() {
 
         Enemies enemies;
         BossSpawnState bossSpawnState = InitialWait;
-        
+
         int ch;                                 // Input del usuario
         int vidas = ship.lives;                 // Contador de vidas
         clear();                                // Limpiar pantalla
