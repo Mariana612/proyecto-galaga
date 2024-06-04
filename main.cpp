@@ -123,11 +123,6 @@ enum BossSpawnState {           // Estados del boss Galaga para aparezca varias 
     ReadyToSpawn                // Listo para volver a aparecer
 };
 
-BossSpawnState bossSpawnState = InitialWait;
-
-// Tiempo de los estados
-std::chrono::time_point<std::chrono::steady_clock> stateStartTime = std::chrono::steady_clock::now();
-
 int main() {
     bool restartGame = true;                    // Condición de reinicio del juego
 
@@ -197,12 +192,17 @@ int main() {
         ship.initializeLifeArt();               // Asignar vidas
 
         Enemies enemies;
+        BossSpawnState bossSpawnState = InitialWait;
+        
         int ch;                                 // Input del usuario
         int vidas = ship.lives;                 // Contador de vidas
         clear();                                // Limpiar pantalla
         ship.drawNave();                        // Mostrar la nave
         ship.drawLife(COLS / 5, LINES);         // Mostrar las vidas
         drawScore(0);
+
+        // Tiempo de los estados
+        std::chrono::time_point<std::chrono::steady_clock> stateStartTime = std::chrono::steady_clock::now();
 
         // Tiempo de inicio del juego
         auto startTime = std::chrono::steady_clock::now();

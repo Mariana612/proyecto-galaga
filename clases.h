@@ -430,31 +430,50 @@ public:
         }
             
         // Clear the current list of enemies
+        initialPositions.clear();
         enemyList.clear();
 
         switch (currentWave) {
             case 1:
             numberOfEnemies = 3; // 2 Normal + 1 Turret
             adjustSpacing(normalWidth, numberOfEnemies, spacing);
+            
             enemyList.push_back(std::make_unique<NormalEnemy>(startX, startY));
+            initialPositions.push_back({startX , startY});  // Record initial position
+            
             enemyList.push_back(std::make_unique<NormalEnemy>(startX + normalWidth + spacing, startY));
+            initialPositions.push_back({startX + normalWidth + spacing, startY});  // Record initial position
+            
             enemyList.push_back(std::make_unique<TurretEnemy>(startX + 2 * (normalWidth + spacing), turretY));
+            initialPositions.push_back({startX + 2 * (normalWidth + spacing), turretY});  // Record initial position
             break;
         case 2:
             numberOfEnemies = 4; // 2 Normal + 2 Turret
             adjustSpacing(normalWidth, numberOfEnemies, spacing);
+            
             enemyList.push_back(std::make_unique<NormalEnemy>(startX, startY));
+            initialPositions.push_back({startX, startY});  // Record initial position
+            
             enemyList.push_back(std::make_unique<NormalEnemy>(startX + normalWidth + spacing, startY));
+            initialPositions.push_back({startX + normalWidth + spacing, startY});  // Record initial position
+            
             enemyList.push_back(std::make_unique<TurretEnemy>(startX + 2 * (normalWidth + spacing), turretY));
+            initialPositions.push_back({startX + 2 * (normalWidth + spacing), turretY});  // Record initial position
+            
             enemyList.push_back(std::make_unique<TurretEnemy>(startX + 3 * (normalWidth + spacing), turretY));
+            initialPositions.push_back({startX + 3 * (normalWidth + spacing), turretY});  // Record initial position
             break;
         case 3:
             // For wave 3, calculate spacing for normal enemies separately as turrets are on a different row
             numberOfEnemies = (COLS - startX) / normalWidth; // Max possible normal enemies in one row
             adjustSpacing(normalWidth, numberOfEnemies, spacing);
             spawnRowOfEnemies(startX, startY, normalWidth, spacing);
+            
             enemyList.push_back(std::make_unique<TurretEnemy>(startX, turretY));
+            initialPositions.push_back({startX, turretY});  // Record initial position
+            
             enemyList.push_back(std::make_unique<TurretEnemy>(startX + (normalWidth + spacing), turretY));
+            initialPositions.push_back({startX + (normalWidth + spacing), turretY});  // Record initial position
             break;
         default:
             // Default wave pattern used after the third wave
