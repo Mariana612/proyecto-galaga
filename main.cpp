@@ -7,11 +7,11 @@
 #include <iostream>
 #include <vector>
 #include <ncurses.h>
-#include "clases.h"
 #include <chrono>
 #include <cstring>
-
-
+#include "enemy.h"
+#include "nave-balas.h"
+#include "funcionesEnemigos.h"
 
 void initialize() {
     initscr();                  // Se empieza el ncurses
