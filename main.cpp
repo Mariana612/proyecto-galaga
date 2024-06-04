@@ -7,6 +7,8 @@
 #include <chrono>
 #include <cstring>
 #include "funcionesEnemigos.h"
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_mixer.h>
 
 void initialize() {
     initscr();                  // Se empieza el ncurses
@@ -15,6 +17,7 @@ void initialize() {
     keypad(stdscr, TRUE);       // Se habilitan las teclas del teclado
     curs_set(0);                // Esconder el cursor
     nodelay(stdscr, FALSE);     // Set getch a non-blocking
+
     start_color();
     use_default_colors();  // Use the terminal's default colors
     // Parejas de colores para el ASCII art del juego
@@ -24,13 +27,35 @@ void initialize() {
     init_pair(4, COLOR_CYAN, -1);
     init_pair(5, COLOR_MAGENTA, -1);
     init_pair(6, COLOR_GREEN, -1);
+
+     if (SDL_Init(SDL_INIT_AUDIO) < 0) {
+        fprintf(stderr, "No se pudo inicializar SDL: %s\n", SDL_GetError());
+        exit(1);
+    }
+    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
+        fprintf(stderr, "No se pudo inicializar SDL_mixer: %s\n", Mix_GetError());
+        exit(1);
+    }
+    Mix_Music *backgroundMusic = Mix_LoadMUS("MEGALOVANIA.mp3");
+    if (!backgroundMusic) {
+        fprintf(stderr, "No se pudo cargar la música: %s\n", Mix_GetError());
+        exit(1);
+    }
+    Mix_PlayMusic(backgroundMusic, -1); 
+    Mix_VolumeMusic(44); 
 }
 
 void finalize() {
+    Mix_CloseAudio();
+    SDL_Quit();
     endwin();                   // Se termina el curses
 }
 
+//-----------Musica----------------
+
+
 // --------------------MENÚ--------------------
+>>>>>>> Sonidos
 void drawMenu(const std::vector<std::string>& options, int highlight) {
     clear();                                        // Limpiar pantalla
     int y = LINES / 2 - options.size() / 2;         // Imprimir menú en el centro
