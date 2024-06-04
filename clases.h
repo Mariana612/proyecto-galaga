@@ -385,30 +385,30 @@ public:
     int currentWave = 0;
 
       void spawnSingleRowOfEnemies() {
-        int enemyWidth = 12;  // Approximate width of the NormalEnemy
-        int turretWidth = 10; // Approximate width of the TurretEnemy
-        int spacing = 10;     // Desired space between NormalEnemies
+        int enemyWidth = 12;  // Ancho aproximado del enemigo
+        int turretWidth = 10; 
+        int spacing = 10;     // Espacio deseado entre nemigos
         int startX = 10;
-        int startY = 5;       // Starting Y position for the normal enemies
-        int turretY = startY + 4;  // Y position for turret enemies, slightly below normal enemies
+        int startY = 5;       // Posicion Y inicial para enemigos normales
+        int turretY = startY + 4;  // Y posicion para las torretas
 
-        int maxEnemiesPerRow = (COLS - startX) / (enemyWidth + spacing); // Calculate how many enemies fit per row
+        int maxEnemiesPerRow = (COLS - startX) / (enemyWidth + spacing); // Calcula cuantos enemigos por fila
 
-        // Clear previous data in initialPositions
+        // Clear datos anteriores
         initialPositions.clear();
         enemyList.clear();
 
-        // Calculate position for NormalEnemies
+        // Calcula posicion para los enemigos normales
         for (int i = 0; i < maxEnemiesPerRow; ++i) {
             int posX = startX + i * (enemyWidth + spacing);
-            if (posX + enemyWidth >= COLS) break; // Ensure enemies do not spawn off-screen
-            initialPositions.push_back({posX, startY});  // Record initial position
+            if (posX + enemyWidth >= COLS) break; // Se asegura que no esten fuera de pantalla
+            initialPositions.push_back({posX, startY});  // Posicion inicial
             enemyList.push_back(std::make_unique<NormalEnemy>(posX, startY));
             
-            // Calculate position for TurretEnemies in the spaces between NormalEnemies
-             if (i % 2 == 0 && i < maxEnemiesPerRow - 1) { // Spawn turret every other normal enemy
+            // Calcula posicion de las torretas entre los enemigos normales
+             if (i % 2 == 0 && i < maxEnemiesPerRow - 1) { // Spawn torreta
             int turretPosX = posX + enemyWidth + (spacing - turretWidth) / 2;
-            initialPositions.push_back({turretPosX, turretY});  // Record initial position for Turret
+            initialPositions.push_back({turretPosX, turretY});  // Gurda posicion inicial
             enemyList.push_back(std::make_unique<TurretEnemy>(turretPosX, turretY));
         }
     }
@@ -464,16 +464,7 @@ public:
             initialPositions.push_back({startX + 3 * (normalWidth + spacing), turretY});  // Record initial position
             break;
         case 3:
-            // For wave 3, calculate spacing for normal enemies separately as turrets are on a different row
-            numberOfEnemies = (COLS - startX) / normalWidth; // Max possible normal enemies in one row
-            adjustSpacing(normalWidth, numberOfEnemies, spacing);
-            spawnRowOfEnemies(startX, startY, normalWidth, spacing);
-            
-            enemyList.push_back(std::make_unique<TurretEnemy>(startX, turretY));
-            initialPositions.push_back({startX, turretY});  // Record initial position
-            
-            enemyList.push_back(std::make_unique<TurretEnemy>(startX + (normalWidth + spacing), turretY));
-            initialPositions.push_back({startX + (normalWidth + spacing), turretY});  // Record initial position
+            spawnSingleRowOfEnemies();
             break;
         default:
             // Default wave pattern used after the third wave
