@@ -31,14 +31,15 @@ public:
 
 class Nave {
 public:
-    int x, y;                                       // Posición de la nave
-    std::vector<std::string> art;                   // ASCII art de la nave
-    std::vector<std::string> lifeArt;               // ASCII art de las vidas
-    int lives = 2;                                  // Cantidad de vidas
+    int x, y;                                                     // Posición de la nave
+    std::vector<std::string> art;                                 // ASCII art de la nave
+    std::vector<std::string> lifeArt;                             // ASCII art de las vidas
+    int lives = 2;                                                // Cantidad de vidas
     std::vector<Bala> balas; 
     
 
-    Nave(int posX, int posY) : x(posX), y(posY) {   // Se ocupan las posiciones
+    Nave(int posX, int posY) : x(posX), y(posY) {                 // Se ocupan las posiciones
+        // Arte de la nave
         art = {
             "    ^",
             "   /-\\",
@@ -47,17 +48,18 @@ public:
     }
 
     void initializeLifeArt() {
+        // Arte de los símbolos de las vidas
         lifeArt = {
             "  /-\\  ",
             "-|^ ^|-"
         };
     }
 
-    int width() const {
+    int width() const {                                           // Anchura de la nave
         return art.empty() ? 0 : art[0].size();
     }
 
-    int height() const {
+    int height() const {                                          // Altura de la nave
         return art.size();
     }
     
@@ -67,10 +69,10 @@ public:
 
     void moveRight(int maxWidth) {                                // Movimiento a la derecha
             if (showSecondShip == true){
-                if (x < maxWidth - static_cast<int>(30)) ++x;
+                if (x < maxWidth - static_cast<int>(30)) ++x;     // Si hay una segunda nave, que esta no se pase del límite tampoco
             };
             if (showSecondShip == false){
-                if (x < maxWidth - static_cast<int>(12)) ++x;
+                if (x < maxWidth - static_cast<int>(12)) ++x;     // No sobrepasarse del límite de la terminal
             }
     }
 
@@ -79,13 +81,13 @@ public:
             mvaddstr(y + i, x, art[i].c_str());
         }
         if (showSecondShip) {                                     // Draw la segunda nave si el flag esta set
-            for (size_t i = 0; i < art.size(); ++i) {
-                mvaddstr(y + i, x + static_cast<int>(18), art[i].c_str()); // Posiciona la segunda nave a la derecha 
+            for (size_t i = 0; i < art.size(); ++i) {             // Posiciona la segunda nave a la derecha
+                mvaddstr(y + i, x + static_cast<int>(18), art[i].c_str());  
             }
         }
     }
 
-    void drawLife(int maxX, int maxY) { // Dibujar las vidas
+    void drawLife(int maxX, int maxY) {                           // Dibujar las vidas
         int startX = maxX - (lifeArt[0].size() + 1) * lives;
         int startY = maxY - lifeArt.size();
         for (int i = 0; i < lives; ++i) {
@@ -141,17 +143,17 @@ public:
         bullet.~Bala();
     }
 
-    void decreaseLife() {              // Perder una vida
-        if (showSecondShip == false) { // Draw the second ship if the flag is set
+    void decreaseLife() {                                         // Perder una vida
+        if (showSecondShip == false) {                            // Draw the second ship if the flag is set
             if (lives >= 0) {
                 --lives;
-                x = COLS / 2 - 7;      // Se coloca la nave en el centro
+                x = COLS / 2 - 7;                                 // Se coloca la nave en el centro
                 y = LINES - 6;
             }  
         }
-        if (showSecondShip == true) {  // Draw the second ship if the flag is set
+        if (showSecondShip == true) {                             // Draw the second ship if the flag is set
             if (lives >= 0) {
-                x = COLS / 2 - 7;      // Se coloca la nave en el centro
+                x = COLS / 2 - 7;                                 // Se coloca la nave en el centro
                 y = LINES - 6;
             }  
         }

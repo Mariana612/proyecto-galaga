@@ -1,3 +1,4 @@
+
 #include "nave-balas.h"
 
 
@@ -11,17 +12,18 @@ public:
     Enemy(int initialpuntuacion): puntuacion(initialpuntuacion){}
     Enemy(int posX, int posY) : x(posX), y(posY), isAlive(true) {}
 
+    // Actualizar posición del enemigo
     virtual void update(int playerX, int playerY, Nave& player) = 0;
 
-    virtual int width() const {
+    virtual int width() const {     // Anchura del enemigo
         return art.empty() ? 0 : art[0].size();
     }
 
-    virtual int height() const {
+    virtual int height() const {    // Altura del enemigo
         return art.size();
     }
 
-    virtual void draw() {
+    virtual void draw() {           // Dibujar al enemigo
         if (!isAlive) return;
 
         for (size_t i = 0; i < art.size(); ++i) {
