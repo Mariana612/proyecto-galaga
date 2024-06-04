@@ -236,8 +236,8 @@ public:
     TurretEnemy(int posX, int posY) : Enemy(posX, posY) {
         puntuacion = 300;
         art = {
-            "[#####]",
-            "|#####|"
+            ".'='.",
+            "/|=|\\\"",
         };
     }
 
