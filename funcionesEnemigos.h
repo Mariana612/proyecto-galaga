@@ -2,7 +2,7 @@
 #include "enemy.h"
 
 
-
+// --------------------ACCIONES DE LOS ENEMIGOS--------------------
 class Enemies {
 public:
 
@@ -10,14 +10,15 @@ public:
     std::vector<std::pair<int, int>> initialPositions;
     bool enoughLives = true;
     int currentWave = 0;
-
-      void spawnSingleRowOfEnemies() {
-        int enemyWidth = 12;            // Ancho aproximado del enemigo
+    
+    // Aparición de enemigos
+    void spawnSingleRowOfEnemies() {
+        int enemyWidth = 12;                                   // Ancho aproximado del enemigo
         int turretWidth = 10; 
-        int spacing = 10;               // Espacio deseado entre nemigos
+        int spacing = 10;                                      // Espacio deseado entre nemigos
         int startX = 10;
-        int startY = 5;                 // Posicion Y inicial para enemigos normales
-        int turretY = startY + 4;       // Y posicion para las torretas
+        int startY = 5;                                        // Posicion Y inicial para enemigos normales
+        int turretY = startY + 4;                              // Y posicion para las torretas
 
         // Calcula cuantos enemigos por fila
         int maxEnemiesPerRow = (COLS - startX) / (enemyWidth + spacing);
@@ -39,13 +40,13 @@ public:
             enemyList.push_back(std::make_unique<TurretEnemy>(turretPosX, turretY));
     }
 }
-
- void spawnWave() {
+    // Olas de enemigos
+    void spawnWave() {
         int startX = 10;
         int startY = -3;
         int turretY = startY + 15;
-        int normalWidth = 12;  // Ancho de NormalEnemy
-        int turretWidth = 10;  // Ancho de las torretas
+        int normalWidth = 12;                                                                // Ancho de NormalEnemy
+        int turretWidth = 10;                                                                // Ancho de las torretas
 
         // Espaciado inicial
         int spacing = 10;
@@ -55,7 +56,7 @@ public:
             currentWave = 0;
         }
             
-        // Clear la lista actual de enemigos
+        // Limpiar la lista actual de enemigos
         initialPositions.clear();
         enemyList.clear();
 
@@ -114,14 +115,6 @@ public:
         }
     }
 
-     void spawnRowOfEnemies(int startX, int startY, int width, int spacing) {
-        int posX = startX;
-        while (posX + width < COLS) {
-            enemyList.push_back(std::make_unique<NormalEnemy>(posX, startY));
-            posX += width + spacing;
-        }
-    }
-
     void updateWave() {
         if (areAllNonBossEnemiesDefeated()) {
             currentWave++;
@@ -163,9 +156,9 @@ public:
         }
     }
 
-    // Revisar colisión de la segunnda nave
+    // Revisar colisión de la segunda nave
     if (showSecondShip) {
-        int secondShipX = player.x + 15;                                 // Calcula la posicion X para la segunda nave
+        int secondShipX = player.x + 16;                                 // Calcula la posicion X para la segunda nave
         for (int i = 0; i < player.height(); ++i) {
             for (int j = 0; j < player.width(); ++j) {
                 int px = secondShipX + j;
@@ -224,7 +217,7 @@ void handleBulletCollision(Nave& player) {
     }
 
     if (player.lives != -1) {                                              // Si se pierde una vida, dar momento de respiro al jugador
-            clear();                                                       // Limpiar pantalla
+            erase();                                                       // Limpiar pantalla
             player.drawLife(COLS / 5, LINES);                              // Mostrar vidas 
             mvprintw(LINES / 2, COLS / 2 - 5, "READY");                    // Mensaje de alerta
             refresh();                                                     // Refrescar la pantalla
@@ -261,7 +254,7 @@ void handleCollision(const std::unique_ptr<Enemy>& enemy, Nave& player) {
             showSecondShip = false;                                        // Apagar bandera
         }
         if (player.lives != -1) {                                          // Si se pierde una vida, dar momento de respiro al jugador
-            clear();                                                       // Limpiar pantalla
+            erase();                                                       // Limpiar pantalla
             player.drawLife(COLS / 5, LINES);                              // Mostrar vidas 
             mvprintw(LINES / 2, COLS / 2 - 5, "READY");                    // Mensaje de alerta
             refresh();                                                     // Refrescar la pantalla

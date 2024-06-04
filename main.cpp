@@ -15,13 +15,22 @@ void initialize() {
     keypad(stdscr, TRUE);       // Se habilitan las teclas del teclado
     curs_set(0);                // Esconder el cursor
     nodelay(stdscr, FALSE);     // Set getch a non-blocking
+    start_color();
+    use_default_colors();  // Use the terminal's default colors
+    // Parejas de colores para el ASCII art del juego
+    init_pair(1, COLOR_YELLOW, -1);
+    init_pair(2, COLOR_BLUE, -1);
+    init_pair(3, COLOR_RED, -1);
+    init_pair(4, COLOR_CYAN, -1);
+    init_pair(5, COLOR_MAGENTA, -1);
+    init_pair(6, COLOR_GREEN, -1);
 }
 
 void finalize() {
     endwin();                   // Se termina el curses
 }
 
-// ----------Imprimir menú----------
+// --------------------MENÚ--------------------
 void drawMenu(const std::vector<std::string>& options, int highlight) {
     clear();                                        // Limpiar pantalla
     int y = LINES / 2 - options.size() / 2;         // Imprimir menú en el centro
@@ -38,7 +47,7 @@ void drawMenu(const std::vector<std::string>& options, int highlight) {
     refresh();                                     // Refrescar la pantalla
 }
 
-// ----------Imprimir título----------
+// --------------------TÍTULO--------------------
 void drawTitulo(const std::vector<std::string>& titulo) {
     clear();                                        // Limpiar pantalla
     int y = LINES / 2 - titulo.size() / 2;          // Imprimir el título en el centro
@@ -49,7 +58,7 @@ void drawTitulo(const std::vector<std::string>& titulo) {
     refresh();                                      // Refrescar la pantalla
 }
 
-// ----------Imprimir instrucciones----------
+// --------------------INSTRUCCIONES--------------------
 void drawInstructions() {
     std::vector<std::string> instructions;              // ASCII art de las instrucciones
     instructions = {
@@ -86,7 +95,32 @@ void drawInstructions() {
     refresh();                                          // Refrescar la pantalla
 }
 
+//--------------------ESTRELLAS--------------------
+struct Star {
+    int x, y;
+};
 
+std::vector<Star> initializeStars(int numStars) {       // Vector con la cantidad de estrellas que se quieren
+    std::vector<Star> stars;
+    stars.reserve(numStars);
+
+    for (int i = 0; i < numStars; ++i) {                // Las estrellas se colocan en posiciones aleatorias
+        int x = rand() % COLS;
+        int y = rand() % LINES;
+        stars.push_back({x, y});
+    }
+
+    return stars;
+}
+
+void drawStars(const std::vector<Star>& stars) {        // Las estrellas son representadas por un punto
+    for (const auto& star : stars) {
+        mvprintw(star.y, star.x, ".");
+    }
+}
+
+
+// --------------------FUNCIONES DE LA PUNTUACIÓN--------------------
 void updateScore(char* score_line, int score)
 {
     sprintf(score_line,"SCORE:%-6d",score);
@@ -192,7 +226,7 @@ int main() {
 
         int ch;                                 // Input del usuario
         int vidas = ship.lives;                 // Contador de vidas
-        clear();                                // Limpiar pantalla
+        erase();                                // Limpiar pantalla
         ship.drawNave();                        // Mostrar la nave
         ship.drawLife(COLS / 5, LINES);         // Mostrar las vidas
         drawScore(0);
@@ -205,93 +239,89 @@ int main() {
         // Periodo de delay antes de que aparezcan los enemigos
         const double delayPeriod = 4.0;
 
-        while ((ch = getch()) != 'q') {         // Mientras no se presione la letra q, seguir con el juego
-            // Tiempo actual
-            auto currentTime = std::chrono::steady_clock::now();
+        const int numStars = 95;                                        // Cantidad de estrellas
+        auto stars = initializeStars(numStars);
 
-            // Tiempo que ha pasado desde el incio hasta ahora
-            std::chrono::duration<float> elapsed = currentTime - startTime;
+        while ((ch = getch()) != 'q') {                                 // Mientras no se presione la letra q, seguir con el juego
+            auto currentTime = std::chrono::steady_clock::now();                // Tiempo actual
+            std::chrono::duration<float> elapsed = currentTime - startTime;     // Tiempo que ha pasado desde el incio hasta ahora
 
-            nodelay(stdscr, TRUE);              // Para que los enemigos se muevan sin importar los movimientos del jugador
-
-            clear();                            // Limpiar pantalla
-        
-            for (auto& enemy : enemies.enemyList) {         
-                if (!enemy->isAlive)
-                    continue;
-                if (enemies.checkCollision(enemy, ship)) {   //Si hay colision entre el jugador y los enemigos normales entonces break
+            nodelay(stdscr, TRUE);                                              // Para que los enemigos se muevan sin importar los movimientos del jugador
+            erase();                                                            // Limpiar pantalla
+    
+            drawStars(stars);                                                   // Dibujar las estrellas
+    
+            for (auto& enemy : enemies.enemyList) {
+                if (!enemy->isAlive) continue;
+                if (enemies.checkCollision(enemy, ship)) {                      // Si hay colision entre el jugador y los enemigos normales entonces break
                     break;
                 }
             }
 
-            if (ship.lives == -1) break;        // Si ya no se tienen vidas, terminar el juego
+            if (ship.lives == -1) break;                                        // Si ya no se tienen vidas, terminar el juego
 
-            // Los estados del boss
+            // Estados del boss
             std::chrono::duration<double> elapsedStateTime = currentTime - stateStartTime;
             switch (bossSpawnState) {
-                case InitialWait:
-                    // Estado inicial de espera
-                    if (elapsed.count() >= 30.0) {            // Cuando hayan pasado 30 segundos, aparece el boss
-                        enemies.spawnBoss(ship.x);            // Crear boss
-                        stateStartTime = currentTime;         // Actualizar contador de tiempo
-                        bossSpawnState = WaitingForBossDeath; // El estado cambia
+                case InitialWait:                                               // Espera inicial
+                    if (elapsed.count() >= 30.0) {                              // Cuando hayan pasado 30 segundos, aparece el boss
+                        enemies.spawnBoss(ship.x);                              // Crear boss
+                        stateStartTime = currentTime;                           // Actualizar contador de tiempo
+                        bossSpawnState = WaitingForBossDeath;                   // El estado cambia
                     }
                     break;
 
-                case WaitingForBossDeath:
-                    // Si el boss está muerto, entonces se espera un momento antes de que aparezca
+                case WaitingForBossDeath:                                       // Esperando a que se muera
                     if (enemies.isBossDead()) { 
-                        stateStartTime = currentTime;        // Actualizar contador de tiempo
-                        bossSpawnState = DelayAfterDeath;    // El estado cambia
+                        stateStartTime = currentTime;                           // Actualizar contador de tiempo
+                        bossSpawnState = DelayAfterDeath;                       // El estado cambia
                     }
                     break;
 
-                case DelayAfterDeath:
-                    // Se esperan 12 segundos antes de que pueda volver a aparecer
-                    if (elapsedStateTime.count() >= 12.0) {
-                        bossSpawnState = ReadyToSpawn;       // El estado cambia
+                case DelayAfterDeath:                                           // Espera después de la muerte
+                    if (elapsedStateTime.count() >= 12.0) {                     // Que pasen 12 segundos
+                        bossSpawnState = ReadyToSpawn;                          // El estado cambia
                     }
                     break;
 
-                case ReadyToSpawn:
-                    // Si el boss está muerto y el jugador solo tiene una nave, puede volver a aparecer
+                case ReadyToSpawn:                                              // Puede volver a aparecer
                     if (enemies.isBossDead()) {
-                        enemies.spawnBoss(ship.x);             // Crear boss
-                        stateStartTime = currentTime;         // Actualizar contador de tiempo
-                        bossSpawnState = WaitingForBossDeath; // El estado cambia
+                        enemies.spawnBoss(ship.x);                              // Crear boss
+                        stateStartTime = currentTime;                           // Actualizar contador de tiempo
+                        bossSpawnState = WaitingForBossDeath;                   // El estado cambia
                     }
                     break;
             }
 
-            // Los enemigos aparecen después de un delay
+            // Que los enemigos aparezcan por primera vez después de un tiempo de espera
             if (elapsed.count() >= delayPeriod) {
-                if (enemies.areAllNonBossEnemiesDefeated()) {     //Si todos las naves enemigas estan derrotadas entonces se actualiza la ola de enemigos
+                if (enemies.areAllNonBossEnemiesDefeated()) {                   // Si todos las naves enemigas estan derrotadas entonces se actualiza la ola de enemigos
                     enemies.updateWave();
                 }
             }
 
-            handleInput(ch, ship);                      //Ingresar las teclas de movimiento
-        
-            enemies.updateEnemies(ship.x, ship);        // Actualiza las nnaves enemigas
-            ship.drawNave();                            // La nave se mueve
-            ship.drawLife(COLS / 5, LINES);             // Mostrar vidas
+            handleInput(ch, ship);                                              // Ingresar las teclas de movimiento
+    
+            enemies.updateEnemies(ship.x, ship);                                // Actualiza las naves enemigas
+            enemies.drawEnemies();                                              // Dibuja los enemigos
+            ship.drawNave();                                                    // Dibuja la nave
+            ship.drawLife(COLS / 5, LINES);                                     // Mostrar vidas
             ship.updateBalasPos();
-            enemies.checkCollisionBala(ship, finalScore); //Si hubo colision con las naves enemigas
+            enemies.checkCollisionBala(ship, finalScore);                       // Si hubo colision con las naves enemigas
             drawScore(finalScore);
-            enemies.checkBulletCollision(ship);         //Check si hubo colision de las balas enemigas con el jugador
+            enemies.checkBulletCollision(ship);                                 // Revisar si hubo colisión de las balas enemigas con el jugador
             ship.drawBalas();
-            enemies.drawEnemies();                      //Dibuja los enemigos
 
-            refresh();                                  // Refescar la pantalla
-            napms(20);                                  // Delay para desacelerar el loop
-            
-            if(finalScore>9999)
-            {
+            refresh();                                                          // Refrescar la pantalla
+            napms(20);                                                          // Delay para desacelerar el loop
+    
+            if (finalScore > 9999) {
                 won = true;
                 break;
             }
         }
         clear();                                        // Limpiar pantalla
+        drawStars(stars);                               // Dibujar las estrellas
         enemies.drawEnemies();                          // Mostrar enemigos
         refresh();                                      // Refrescar pantalla
 

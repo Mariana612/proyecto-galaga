@@ -1,7 +1,13 @@
 
 #include "nave-balas.h"
 
+// Definiciones para los colores
+#define NORMAL_PAIR 4
+#define TURRET_PAIR 5
+#define BOSS_PAIR 6
 
+
+// --------------------CLASE ABSTRACTA ENEMIGO--------------------
 class Enemy {
 public:
     int x, y;
@@ -15,15 +21,15 @@ public:
     // Actualizar posición del enemigo
     virtual void update(int playerX, int playerY, Nave& player) = 0;
 
-    virtual int width() const {     // Anchura del enemigo
+    virtual int width() const {                                             // Anchura del enemigo
         return art.empty() ? 0 : art[0].size();
     }
 
-    virtual int height() const {    // Altura del enemigo
+    virtual int height() const {                                            // Altura del enemigo
         return art.size();
     }
 
-    virtual void draw() {           // Dibujar al enemigo
+    virtual void draw() {                                                   // Dibujar al enemigo
         if (!isAlive) return;
 
         for (size_t i = 0; i < art.size(); ++i) {
@@ -34,12 +40,13 @@ public:
     virtual ~Enemy() {}
 };
 
+// --------------------ENEMIGO NORMAL--------------------
 class NormalEnemy : public Enemy {
 private:
-    int moveDirection;              // 1 para moverse hacia abajo, -1 para moverse hacia arriba
+    int moveDirection;                                                      // 1 para moverse hacia abajo, -1 para moverse hacia arriba
     int moveCounter;
     int moveThreshold;
-    float moveProbability;          // Probabilidad de que se mueva en el siguiente ciclo
+    float moveProbability;                                                  // Probabilidad de que se mueva en el siguiente ciclo
     
 
 public:
@@ -50,31 +57,39 @@ public:
             "  \\-o-/  "
         };
 
-        // Randomize la probabilidad de moverse entre un 30% a 70% para variacion
+        // Aleatorizar la probabilidad de moverse entre un 30% a 70% para variación
         moveProbability = 0.3f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX/(0.4f)));
     }
 
     void update(int playerX, int playerY, Nave& player) override {
-        if (rand() % 100 < moveProbability * 100) { // Convierte a porcentaje
-            moveCounter++;                          // Increment counter 
+        if (rand() % 100 < moveProbability * 100) {                         // Convierte a porcentaje
+            moveCounter++;                                                  // Incrementar contador
             if (moveCounter >= moveThreshold) { 
-                moveCounter = 0; // Reset counter
+                moveCounter = 0;                                            // Inicializar contador
                 if ((y >= 2+ playerY - static_cast<int>(art.size()) && moveDirection == 1) || (y <= 0 && moveDirection == -1)) {
-                    moveDirection *= -1;            // Reversa direccion cuando toca el borde de la pantalla
+                    moveDirection *= -1;                                    // Reversa direccion cuando toca el borde de la pantalla
                 }
-                y += moveDirection;                 // Se mueve en base a la direccion
+                y += moveDirection;                                         // Se mueve en base a la direccion
             }
         }
     }
 
+    void draw() override {                                                  // Dibujar enemigo
+        if (!isAlive) return;                                               // No dibujar si esta muerto
+        attron(COLOR_PAIR(NORMAL_PAIR));
+        Enemy::draw();
+        attroff(COLOR_PAIR(NORMAL_PAIR)); 
+    }
+
 };
 
+// --------------------ENEMIGO QUE DISPARA--------------------
 class TurretEnemy : public Enemy {
 private:
-    int moveCounter = 0;         // Counter
-    int shootCounter = 0;        // Counter
-    int moveThreshold = 10;      // Shoot cada 10 updates
-    int shootThreshold = 60;     // Shoot cada 60 updates
+    int moveCounter = 0;                                                    // Contador
+    int shootCounter = 0;                                                   // Contador
+    int moveThreshold = 10;                                                 // Disparar cada 10 updates
+    int shootThreshold = 60;                                                // Disparar cada 60 updates
 
 public:
     TurretEnemy(int posX, int posY) : Enemy(posX, posY) {
@@ -88,9 +103,9 @@ public:
     std::vector<Bala> bullets;
 
     void shoot() {
-        if (!isAlive) return;                 // no dispara si la torreta esta muerta
+        if (!isAlive) return;                                              // no dispara si la torreta esta muerta
         int centerX = x + (width() / 2);
-        Bala tempBala(centerX, y + height()); // Bullet empieza desde abajo de la torreta
+        Bala tempBala(centerX, y + height());                              // Bullet empieza desde abajo de la torreta
         bullets.push_back(tempBala);
     }
 
@@ -139,21 +154,23 @@ public:
 
     void draw() override {
         if (!isAlive) return;                                              // No dibujar si esta muerto
-        Enemy::draw(); 
+        attron(COLOR_PAIR(TURRET_PAIR));
+        Enemy::draw();
+        attroff(COLOR_PAIR(TURRET_PAIR)); 
         drawBullets();                                                     // Draw balas
     }
 };
 
+// --------------------BOSS GALAGA--------------------
 class BossEnemy : public Enemy {
-
 public:
      enum State { Descending, Holding, LateralMove, HasPlayer };
 
 private:
     State currentState;
-    int lateralDirection;  // 1 para derecha, -1 para izquierda
-    int moveCounter;       // Counter para controlar la velocidad de caida
-    int moveThreshold;     // Threshold a llegar antes de moverse hacia abajo
+    int lateralDirection;                        // 1 para derecha, -1 para izquierda
+    int moveCounter;                             // Counter para controlar la velocidad de caida
+    int moveThreshold;                           // Threshold a llegar antes de moverse hacia abajo
 
 public:
 
@@ -223,6 +240,8 @@ public:
 
     void draw() override {
         if (!isAlive) return;                   //No dibujar si no esta vivo
+        attron(COLOR_PAIR(BOSS_PAIR));
         Enemy::draw();                          //Dibujar al enemigo
+        attroff(COLOR_PAIR(BOSS_PAIR));
     }
 };

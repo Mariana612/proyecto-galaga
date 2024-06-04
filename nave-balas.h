@@ -1,3 +1,5 @@
+
+// Librerías que se deben incluir
 #include <ncurses.h>
 #include <vector>
 #include <iostream>
@@ -5,9 +7,15 @@
 #include <cstdlib>
 #include <ctime>
 
-bool showSecondShip = false;                        // Flag para mostrar la segunda nave
+// Definiciones de los colores
+#define SHIP_PAIR 1
+#define LIFE_PAIR 2
+#define BULLET_PAIR 3
+
+bool showSecondShip = false;                                       // Flag para mostrar la segunda nave
 int finalScore = 0;
 
+// --------------------BALAS--------------------
 class Bala {
 public:
     int xposi, yposi;
@@ -20,7 +28,9 @@ public:
     }
     
     void drawBala() {
-        mvaddch(yposi, xposi, '|');               // Dibuja la bala en la posición (x, y)
+        attron(COLOR_PAIR(BULLET_PAIR));
+        mvaddch(yposi, xposi, '|');                                // Dibuja la bala en la posición (x, y)
+        attroff(COLOR_PAIR(BULLET_PAIR));
         refresh();
     }
     void moveDown(){
@@ -29,6 +39,7 @@ public:
     
 };
 
+// --------------------NAVE DEL JUGADOR--------------------
 class Nave {
 public:
     int x, y;                                                     // Posición de la nave
@@ -69,20 +80,24 @@ public:
 
     void moveRight(int maxWidth) {                                // Movimiento a la derecha
             if (showSecondShip == true){
-                if (x < maxWidth - static_cast<int>(30)) ++x;     // Si hay una segunda nave, que esta no se pase del límite tampoco
+                if (x < maxWidth - static_cast<int>(31)) ++x;     // Si hay una segunda nave, que esta no se pase del límite tampoco
             };
             if (showSecondShip == false){
                 if (x < maxWidth - static_cast<int>(12)) ++x;     // No sobrepasarse del límite de la terminal
             }
     }
 
-    void drawNave() {                                             // Dibuja la nave
+    void drawNave() {                                             // Dibujar la nave
         for (size_t i = 0; i < art.size(); ++i) {
+            attron(COLOR_PAIR(SHIP_PAIR));
             mvaddstr(y + i, x, art[i].c_str());
+            attroff(COLOR_PAIR(SHIP_PAIR));
         }
-        if (showSecondShip) {                                     // Draw la segunda nave si el flag esta set
+        if (showSecondShip) {                                     // Dibujr la segunda nave si el flag está encendido
             for (size_t i = 0; i < art.size(); ++i) {             // Posiciona la segunda nave a la derecha
-                mvaddstr(y + i, x + static_cast<int>(18), art[i].c_str());  
+                attron(COLOR_PAIR(SHIP_PAIR));
+                mvaddstr(y + i, x + static_cast<int>(19), art[i].c_str());
+                attroff(COLOR_PAIR(SHIP_PAIR));  
             }
         }
     }
@@ -92,7 +107,9 @@ public:
         int startY = maxY - lifeArt.size();
         for (int i = 0; i < lives; ++i) {
             for (size_t j = 0; j < lifeArt.size(); ++j) {
+                attron(COLOR_PAIR(LIFE_PAIR));
                 mvaddstr(startY + j, startX + i * (lifeArt[0].size() + 1), lifeArt[j].c_str());
+                attroff(COLOR_PAIR(LIFE_PAIR)); 
             }
         }
     }
@@ -102,7 +119,7 @@ public:
             Bala tempbala1 = Bala(center1, y);
             balas.push_back(tempbala1);
 
-            int center2 = x + 22;
+            int center2 = x + 23;
             Bala tempbala2 = Bala(center2, y);
             balas.push_back(tempbala2);
         };
@@ -144,14 +161,14 @@ public:
     }
 
     void decreaseLife() {                                         // Perder una vida
-        if (showSecondShip == false) {                            // Draw the second ship if the flag is set
+        if (showSecondShip == false) {                            // Si no hay una segunda nave
             if (lives >= 0) {
-                --lives;
+                --lives;                                          // Se resta una vida
                 x = COLS / 2 - 7;                                 // Se coloca la nave en el centro
                 y = LINES - 6;
             }  
         }
-        if (showSecondShip == true) {                             // Draw the second ship if the flag is set
+        if (showSecondShip == true) {                             // Si hay una segunda nave
             if (lives >= 0) {
                 x = COLS / 2 - 7;                                 // Se coloca la nave en el centro
                 y = LINES - 6;
@@ -160,6 +177,7 @@ public:
     }
 };
 
+// --------------------INPUT DEL USUARIO--------------------
 void handleInput(int ch, Nave& ship) {   // Input del jugador
     switch (ch) {
         case KEY_LEFT:
@@ -168,7 +186,7 @@ void handleInput(int ch, Nave& ship) {   // Input del jugador
         case KEY_RIGHT:
             ship.moveRight(COLS);        // Cuando se presiona la flecha derecha se mueve a la derecha
             break;
-        case ' ':
+        case ' ':                        // Cuando se presiona la tecla de espacio se dispara
             ship.shoot();
             break;
             
