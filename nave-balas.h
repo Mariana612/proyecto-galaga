@@ -57,7 +57,7 @@ public:
             "   /-\\",
             "--¦^¦^¦--"
         };
-        balaSound = Mix_LoadWAV("pew.mp3");
+        balaSound = Mix_LoadWAV("shot.mp3");
         if (!balaSound) {
             fprintf(stderr, "No se pudo cargar el sonido de la bala: %s\n", Mix_GetError());
         }
@@ -126,7 +126,7 @@ public:
     }
     void shoot() {
          if (balaSound) {
-            Mix_VolumeChunk(balaSound, 20);
+            Mix_VolumeChunk(balaSound, 30);
             Mix_PlayChannel(-1, balaSound, 0); // Reproduce el sonido en cualquier canal libre
         }
         if (showSecondShip == true){

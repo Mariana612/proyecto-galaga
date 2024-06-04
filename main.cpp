@@ -42,7 +42,7 @@ void initialize() {
         exit(1);
     }
     Mix_PlayMusic(backgroundMusic, -1); 
-    Mix_VolumeMusic(44); 
+    Mix_VolumeMusic(30); 
 }
 
 void finalize() {
@@ -55,7 +55,6 @@ void finalize() {
 
 
 // --------------------MENÚ--------------------
->>>>>>> Sonidos
 void drawMenu(const std::vector<std::string>& options, int highlight) {
     clear();                                        // Limpiar pantalla
     int y = LINES / 2 - options.size() / 2;         // Imprimir menú en el centro

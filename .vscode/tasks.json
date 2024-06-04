@@ -11,7 +11,9 @@
                 "${file}",
                 "-o",
                 "${fileDirname}/${fileBasenameNoExtension}",
-                "-lncurses"
+                "-lncurses",
+                "-lSDL2",
+                "-lSDL2_mixer"
             ],
             "options": {
                 "cwd": "${fileDirname}"
