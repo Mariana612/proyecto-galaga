@@ -5,7 +5,7 @@
 #include <cstdlib>
 #include <ctime>
 
-bool showSecondShip = false; // Flag to show the second ship
+bool showSecondShip = false;                        // Flag para mostrar la segunda nave
 int finalScore = 0;
 
 class Bala {
@@ -31,14 +31,14 @@ public:
 
 class Nave {
 public:
-    int x, y;               // Position of the ship
-    std::vector<std::string> art; // ASCII art of the ship
-    std::vector<std::string> lifeArt; // ASCII art of a life
-    int lives = 2; // Number of lives
+    int x, y;                                       // Posición de la nave
+    std::vector<std::string> art;                   // ASCII art de la nave
+    std::vector<std::string> lifeArt;               // ASCII art de las vidas
+    int lives = 2;                                  // Cantidad de vidas
     std::vector<Bala> balas; 
     
 
-    Nave(int posX, int posY) : x(posX), y(posY) {
+    Nave(int posX, int posY) : x(posX), y(posY) {   // Se ocupan las posiciones
         art = {
             "    ^",
             "   /-\\",
