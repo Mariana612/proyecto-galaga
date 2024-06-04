@@ -4,8 +4,6 @@
 #include <memory>
 #include <cstdlib>
 #include <ctime>
-#include "enemy.h"
-#include "funcionesEnemigos.h"
 
 bool showSecondShip = false;                        // Flag para mostrar la segunda nave
 int finalScore = 0;
@@ -159,8 +157,6 @@ public:
         }
     }
 };
-
-
 
 void handleInput(int ch, Nave& ship) { // Input del jugador
     switch (ch) {

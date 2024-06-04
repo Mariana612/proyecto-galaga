@@ -4,13 +4,8 @@
     description: Juego Galaga en la terminal 
 */
 
-#include <iostream>
-#include <vector>
-#include <ncurses.h>
 #include <chrono>
 #include <cstring>
-#include "enemy.h"
-#include "nave-balas.h"
 #include "funcionesEnemigos.h"
 
 void initialize() {

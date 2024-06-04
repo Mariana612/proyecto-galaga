@@ -1,11 +1,4 @@
-#include <ncurses.h>
-#include <vector>
-#include <iostream>
-#include <memory>
-#include <cstdlib>
-#include <ctime>
 #include "nave-balas.h"
-#include "funcionesEnemigos.h"
 
 
 class Enemy {
