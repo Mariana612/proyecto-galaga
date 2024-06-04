@@ -191,7 +191,7 @@ int main() {
         Nave ship(COLS / 2 - 7, LINES - 6);     // Colocar nave
         ship.initializeLifeArt();               // Asignar vidas
 
-        Enemies enemies;
+        Enemies enemies;                        // Instancia de enemigos
         BossSpawnState bossSpawnState = InitialWait;
 
         int ch;                                 // Input del usuario
@@ -216,14 +216,14 @@ int main() {
             // Tiempo que ha pasado desde el incio hasta ahora
             std::chrono::duration<float> elapsed = currentTime - startTime;
 
-            nodelay(stdscr, TRUE);
+            nodelay(stdscr, TRUE);              // Para que los enemigos se muevan sin importar los movimientos del jugador
 
             clear();                            // Limpiar pantalla
         
-            for (auto& enemy : enemies.enemyList) {
+            for (auto& enemy : enemies.enemyList) {         
                 if (!enemy->isAlive)
                     continue;
-                if (enemies.checkCollision(enemy, ship)) {
+                if (enemies.checkCollision(enemy, ship)) {   //Si hay colision entre el jugador y los enemigos normales entonces break
                     break;
                 }
             }
@@ -269,22 +269,22 @@ int main() {
 
             // Los enemigos aparecen después de un delay
             if (elapsed.count() >= delayPeriod) {
-                if (enemies.areAllNonBossEnemiesDefeated()) {
+                if (enemies.areAllNonBossEnemiesDefeated()) {     //Si todos las naves enemigas estan derrotadas entonces se actualiza la ola de enemigos
                     enemies.updateWave();
                 }
             }
 
             handleInput(ch, ship);                      //Ingresar las teclas de movimiento
         
-            enemies.updateEnemies(ship.x, ship);
+            enemies.updateEnemies(ship.x, ship);        // Actualiza las nnaves enemigas
             ship.drawNave();                            // La nave se mueve
             ship.drawLife(COLS / 5, LINES);             // Mostrar vidas
             ship.updateBalasPos();
-            enemies.checkCollisionBala(ship, finalScore);
+            enemies.checkCollisionBala(ship, finalScore); //Si hubo colision con las naves enemigas
             drawScore(finalScore);
-            enemies.checkBulletCollision(ship);
+            enemies.checkBulletCollision(ship);         //Check si hubo colision de las balas enemigas con el jugador
             ship.drawBalas();
-            enemies.drawEnemies();
+            enemies.drawEnemies();                      //Dibuja los enemigos
 
             refresh();                                  // Refescar la pantalla
             napms(20);                                  // Delay para desacelerar el loop

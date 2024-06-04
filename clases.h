@@ -74,13 +74,13 @@ public:
             }
     }
 
-    void drawNave() {   // Draw the ship
+    void drawNave() {   // Dibuja la nave
         for (size_t i = 0; i < art.size(); ++i) {
             mvaddstr(y + i, x, art[i].c_str());
         }
-        if (showSecondShip) { // Draw the second ship if the flag is set
+        if (showSecondShip) { // Draw la segunda nave si el flag esta set
             for (size_t i = 0; i < art.size(); ++i) {
-                mvaddstr(y + i, x + static_cast<int>(18), art[i].c_str()); // Position the second ship to the right
+                mvaddstr(y + i, x + static_cast<int>(18), art[i].c_str()); // Posiciona la segunda nave a la derecha 
             }
         }
     }
@@ -192,33 +192,33 @@ public:
 
 class NormalEnemy : public Enemy {
 private:
-    int moveDirection; // 1 for moving down, -1 for moving up
+    int moveDirection; // 1 para moverse hacia abajo, -1 para moverse hacia arriba
     int moveCounter;
     int moveThreshold;
-    float moveProbability; // Probability that this enemy will attempt to move each cycle
+    float moveProbability; // Probabilidad de que se mueva en el siguiente ciclo
     
 
 public:
-    NormalEnemy(int posX, int posY) : Enemy(posX, posY), moveDirection(1), moveCounter(0), moveThreshold(5), moveProbability(0.5) { // 50% probability of moving
+    NormalEnemy(int posX, int posY) : Enemy(posX, posY), moveDirection(1), moveCounter(0), moveThreshold(5), moveProbability(0.4) { 
         puntuacion = 100;
         art = {
             "  /---\\  ",
             "  \\-o-/  "
         };
 
-        // Randomize the move probability between 30% to 70% for variation
+        // Randomize la probabilidad de moverse entre un 30% a 70% para variacion
         moveProbability = 0.3f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX/(0.4f)));
     }
 
     void update(int playerX, int playerY, Nave& player) override {
-        if (rand() % 100 < moveProbability * 100) { // Convert probability to a percentage and compare
-            moveCounter++; // Increment counter every update call
-            if (moveCounter >= moveThreshold) { // Check if counter has reached the threshold
+        if (rand() % 100 < moveProbability * 100) { // Convierte a porcentaje
+            moveCounter++; // Increment counter 
+            if (moveCounter >= moveThreshold) { 
                 moveCounter = 0; // Reset counter
                 if ((y >= 2+ playerY - static_cast<int>(art.size()) && moveDirection == 1) || (y <= 0 && moveDirection == -1)) {
-                    moveDirection *= -1; // Reverse direction at the boundaries
+                    moveDirection *= -1; // Reversa direccion cuando toca el borde de la pantalla
                 }
-                y += moveDirection; // Move based on the direction
+                y += moveDirection; // Se mueve en base a la direccion
             }
         }
     }
@@ -244,9 +244,9 @@ public:
     std::vector<Bala> bullets;
 
     void shoot() {
-        if (!isAlive) return; // Do not shoot if the turret is not alive
+        if (!isAlive) return; // no dispara si la torreta esta muerta
         int centerX = x + (width() / 2);
-        Bala tempBala(centerX, y + height()); // Bullet starts from the bottom of the turret
+        Bala tempBala(centerX, y + height()); // Bullet empieza desde abajo de la torreta
         bullets.push_back(tempBala);
     }
 
@@ -262,31 +262,31 @@ public:
 
     void update(int playerX, int playerY, Nave& player) override {
         if (!isAlive) {
-            bullets.clear(); // Optionally clear all bullets when not alive
-            return; // Stop updating when not alive
+            bullets.clear(); // Limpia todas las balas cuando esta muerto
+            return; // Stop updating cuando no esta vivo
         }
 
-        // Update movement
+        // Update movimiento
         moveCounter++;
         if (moveCounter >= moveThreshold) {
             moveCounter = 0;
             x--; // Move left
-            if (x + width() < 0) { // If the turret goes off-screen, reset to the far right
+            if (x + width() < 0) { // si la torreta desaparece de la pantalla mover a la derecha
                 x = COLS - 1;
             }
         }
 
-        // Update shooting
+        // Update disparo
         shootCounter++;
         if (shootCounter >= shootThreshold) {
             shootCounter = 0;
-            shoot(); // Turret shoots a bullet
+            shoot(); // Turret dispara una bala
         }
             
-        // Update bullets' positions
+        // Update la posicion de las balas
         for (int i = 0; i < bullets.size(); ++i) {
             bullets[i].moveDown();
-            if (bullets[i].yposi >= LINES) { // Remove bullets that go off the bottom of the screen
+            if (bullets[i].yposi >= LINES) { // Remove bullets que desaparecen de la pantalla
                 bullets.erase(bullets.begin() + i);
                 --i;
             }
@@ -294,9 +294,9 @@ public:
     }
 
     void draw() override {
-        if (!isAlive) return; // Do not draw if not alive
-        Enemy::draw(); // Call base class draw method
-        drawBullets(); // Draw bullets
+        if (!isAlive) return; // No dibujar si esta muerto
+        Enemy::draw(); 
+        drawBullets(); // Draw balas
     }
 };
 
@@ -307,9 +307,9 @@ public:
 
 private:
     State currentState;
-    int lateralDirection;  // 1 for right, -1 for left
-    int moveCounter;       // Counter to control the descending speed
-    int moveThreshold;     // Threshold to reach before moving downwards
+    int lateralDirection;  // 1 para derecha, -1 para izquierda
+    int moveCounter;       // Counter para controlar la velocidad de caida
+    int moveThreshold;     // Threshold a llegar antes de moverse hacia abajo
 
 public:
 
@@ -333,33 +333,33 @@ public:
     void update(int playerX, int playerY, Nave& player) override {
         switch (currentState) {
             case Descending:
-                moveCounter++; // Increment the counter each time update is called
+                moveCounter++; // Increment el counter
                 if (moveCounter >= moveThreshold) {
-                    moveCounter = 0; // Reset counter once threshold is reached
-                    y += 1; // Move down slowly
-                    if (y >= LINES / 1.3) { // Change this condition to control where it stops
-                        currentState = Holding; // Change state to holding
+                    moveCounter = 0; // Reset counter 
+                    y += 1; // Se mueve lentamente abajo
+                    if (y >= LINES / 1.3) { 
+                        currentState = Holding; // Cambia estado a holding
                     }
                 }
                 break;
 
             case Holding:
-                    currentState = LateralMove; // Change to LateralMove if not touching the player
-                    y = 0; // Optionally move to top if that's needed after collision
+                    currentState = LateralMove; // Cambia a lateralMove si no toca al jugador
+                    y = 0; 
                 break;
 
             case HasPlayer:
-                y = 0; // Optionally move to top if that's needed after collision
+                y = 0; // Se mueve arriba si toca al jugador
                 x += lateralDirection;
                 if (x <= 0 || x >= COLS - static_cast<int>(art[0].size())) {
-                    lateralDirection *= -1; // Change direction when hitting screen borders
+                    lateralDirection *= -1; // Cambia de direccion al tocar los bordes de la pantalla
                 }
                 break;
             
             case LateralMove:
                 x += lateralDirection;
                 if (x <= 0 || x >= COLS - static_cast<int>(art[0].size())) {
-                    lateralDirection *= -1; // Change direction when hitting screen borders
+                    lateralDirection *= -1; // Cambia de direccion al tocar los bordes de la pantalla
                 }
                 break;
 
@@ -375,8 +375,8 @@ public:
     }
 
     void draw() override {
-        if (!isAlive) return; // Do not draw if not alive
-        Enemy::draw(); // Use the base class draw method
+        if (!isAlive) return; //No dibujar si no esta vivo
+        Enemy::draw(); //Use la base de la clase para dibujar
     }
 };
 
@@ -420,10 +420,10 @@ public:
         int startX = 10;
         int startY = -3;
         int turretY = startY + 15;
-        int normalWidth = 12;  // Width of NormalEnemy
-        int turretWidth = 10;  // Width of TurretEnemy
+        int normalWidth = 12;  // Ancho de NormalEnemy
+        int turretWidth = 10;  // Ancho de las torretas
 
-        // Initial spacing - this may be adjusted
+        // Initial spacing
         int spacing = 10;
         int numberOfEnemies;
 
@@ -431,7 +431,7 @@ public:
             currentWave = 0;
         }
             
-        // Clear the current list of enemies
+        // Clear la lista actual de enemigos
         initialPositions.clear();
         enemyList.clear();
 
@@ -444,10 +444,10 @@ public:
             initialPositions.push_back({startX , startY});  // Record initial position
             
             enemyList.push_back(std::make_unique<NormalEnemy>(startX + normalWidth + spacing, startY));
-            initialPositions.push_back({startX + normalWidth + spacing, startY});  // Record initial position
+            initialPositions.push_back({startX + normalWidth + spacing, startY}); 
             
             enemyList.push_back(std::make_unique<TurretEnemy>(startX + 2 * (normalWidth + spacing), turretY));
-            initialPositions.push_back({startX + 2 * (normalWidth + spacing), turretY});  // Record initial position
+            initialPositions.push_back({startX + 2 * (normalWidth + spacing), turretY}); 
             break;
         case 2:
             numberOfEnemies = 4; // 2 Normal + 2 Turret
@@ -457,34 +457,34 @@ public:
             initialPositions.push_back({startX, startY});  // Record initial position
             
             enemyList.push_back(std::make_unique<NormalEnemy>(startX + normalWidth + spacing, startY));
-            initialPositions.push_back({startX + normalWidth + spacing, startY});  // Record initial position
+            initialPositions.push_back({startX + normalWidth + spacing, startY});  
             
             enemyList.push_back(std::make_unique<TurretEnemy>(startX + 2 * (normalWidth + spacing), turretY));
-            initialPositions.push_back({startX + 2 * (normalWidth + spacing), turretY});  // Record initial position
+            initialPositions.push_back({startX + 2 * (normalWidth + spacing), turretY});  
             
             enemyList.push_back(std::make_unique<TurretEnemy>(startX + 3 * (normalWidth + spacing), turretY));
-            initialPositions.push_back({startX + 3 * (normalWidth + spacing), turretY});  // Record initial position
+            initialPositions.push_back({startX + 3 * (normalWidth + spacing), turretY});  
             break;
         case 3:
             spawnSingleRowOfEnemies();
             break;
         default:
-            // Default wave pattern used after the third wave
+            // Default oleadas despues de la tercera oleada
             spawnSingleRowOfEnemies();
             break;
     }
 }
 
     void adjustSpacing(int width, int numberOfEnemies, int &spacing) {
-        int totalWidth = (width + spacing) * numberOfEnemies - spacing;  // Total width if they were placed with the initial spacing
-        int availableSpace = COLS - (2 * 10);  // Available horizontal space
+        int totalWidth = (width + spacing) * numberOfEnemies - spacing;  // Total width con el espacio inicial
+        int availableSpace = COLS - (2 * 10);  // Espacio horizontal disponible
 
-        // Increase spacing if there is extra room
+        // Increase spacing si hay campo
         while (totalWidth < availableSpace) {
-            spacing += 2;  // Increase spacing gradually
+            spacing += 2;  // Increase spacing gradualmente
             totalWidth = (width + spacing) * numberOfEnemies - spacing;
             if (totalWidth > availableSpace) {
-                spacing -= 2;  // Reduce back if it exceeds available space
+                spacing -= 2;  // Reducir si ya no hay espacio
                 break;
             }
         }
@@ -501,7 +501,7 @@ public:
     void updateWave() {
         if (areAllNonBossEnemiesDefeated()) {
             currentWave++;
-            spawnWave(); // Spawn the next wave
+            spawnWave(); // Spawn la siguiente oleada de enemigos
         }
     }
 
@@ -510,7 +510,7 @@ public:
     }
 
     void adjustPosition(int& startX, int& startY) {
-        startX += 12; // Space out enemies
+        startX += 12; // Space out enemigos
 
         if (startX >= COLS - 10) {
             startX = 10;
@@ -525,30 +525,30 @@ public:
     }
 
     bool checkCollision(const std::unique_ptr<Enemy>& enemy, Nave& player) {
-    // Check collision for the primary ship
+    // Check colision para la primera nave
     for (int i = 0; i < player.height(); ++i) {
         for (int j = 0; j < player.width(); ++j) {
             int px = player.x + j;
             int py = player.y + i;
             if (px >= enemy->x && px < enemy->x + enemy->width() &&
                 py >= enemy->y && py < enemy->y + enemy->height()) {
-                // Collision detected with the primary ship
+                // Colision detectada para la primera nave
                 handleCollision(enemy, player);
                 return true;
             }
         }
     }
 
-    // Check collision for the second ship if it is shown
+    // Cehck colision de la segunnda nave
     if (showSecondShip) {
-        int secondShipX = player.x + 15; // Calculate second ship's X position
+        int secondShipX = player.x + 15; // Calcula la posicion X para la segund anave
         for (int i = 0; i < player.height(); ++i) {
             for (int j = 0; j < player.width(); ++j) {
                 int px = secondShipX + j;
                 int py = player.y + i;
                 if (px >= enemy->x && px < enemy->x + enemy->width() &&
                     py >= enemy->y && py < enemy->y + enemy->height()) {
-                    // Collision detected with the second ship
+                    // Colision detectada para la segunda nave
                     handleCollision(enemy, player);
                     return true;
                 }
@@ -560,18 +560,18 @@ public:
 }
 
 bool checkBulletCollision(Nave& player) {
-    int secondShipOffsetX = 18; // Assuming the second ship is offset by 18 units in the X direction
+    int secondShipOffsetX = 18; // Asume un offset de 18 para la segunda nave
 
     for (auto& enemy : enemyList) {
-        if (auto* turret = dynamic_cast<TurretEnemy*>(enemy.get())) { // Check if enemy is a TurretEnemy
+        if (auto* turret = dynamic_cast<TurretEnemy*>(enemy.get())) { // Check si el enemigo es un TurretEnemy
             for (int i = 0; i < turret->bullets.size(); ++i) {
                 auto& bullet = turret->bullets[i];
                 
-                // Check if bullet's coordinates intersect with the primary player's coordinates
+                // Check si las coordenadas de la bala intersecan con las coordenadas de la primera nave
                 bool hitPrimary = bullet.xposi >= player.x && bullet.xposi < player.x + 12 &&
                                   bullet.yposi >= player.y && bullet.yposi < player.y + 3;
                 
-                // Check if bullet's coordinates intersect with the second ship's coordinates
+                // Check si las coordenadas de la bala intersecan con las coordenadas de la segunda nave
                 bool hitSecondShip = showSecondShip && // Only check if the second ship is shown
                                      bullet.xposi >= player.x + secondShipOffsetX &&
                                      bullet.xposi < player.x + secondShipOffsetX + 12 &&
@@ -579,9 +579,9 @@ bool checkBulletCollision(Nave& player) {
                                      bullet.yposi < player.y + 3;
 
                 if (hitPrimary || hitSecondShip) {
-                    turret->bullets.erase(turret->bullets.begin() + i); // Erase the bullet that collided
+                    turret->bullets.erase(turret->bullets.begin() + i); // Borra la bala que colisiono
                     handleBulletCollision(player);
-                    return true;  // Return true if collision happens
+                    return true;  // Return true si hubo colision
                 }
             }
         }
@@ -704,24 +704,24 @@ void handleCollision(const std::unique_ptr<Enemy>& enemy, Nave& player) {
     bool areAllNonBossEnemiesDefeated(){
          for (const auto& enemy : enemyList) {
             if (enemy->isAlive) {
-                return false;  // If any non-boss enemy is still alive, return false
+                return false;  
             }
         }
-        return true;  // If all non-boss enemies are defeated, return true
+        return true;  
     }
 
     bool isBossDead() {
     for (const auto& enemy : enemyList) {
         if (auto* boss = dynamic_cast<BossEnemy*>(enemy.get())) {
             if (boss->isAlive) {
-                return false;  // If boss is still alive, return false
+                return false;  
             }
         }
     }
     if (showSecondShip) {
-        return false;  // If the second ship is shown, return false
+        return false;  
     }
-    return true;  // If boss is dead and player doesn't have a second ship, return true
+    return true;  
 }
 
     void drawEnemies() {
