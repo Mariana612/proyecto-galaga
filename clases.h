@@ -425,7 +425,7 @@ public:
         int spacing = 10;
         int numberOfEnemies;
 
-        if (currentWave== 3){
+        if (currentWave== 4){
             currentWave = 0;
         }
             
