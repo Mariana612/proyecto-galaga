@@ -320,7 +320,7 @@ int main() {
                 break;
             }
         }
-        clear();                                        // Limpiar pantalla
+        erase();                                        // Limpiar pantalla
         drawStars(stars);                               // Dibujar las estrellas
         enemies.drawEnemies();                          // Mostrar enemigos
         refresh();                                      // Refrescar pantalla
