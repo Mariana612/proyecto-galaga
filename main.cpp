@@ -14,7 +14,7 @@
 
 
 void initialize() {
-    initscr();                  // Se empieza el curses
+    initscr();                  // Se empieza el ncurses
     cbreak();                   // Para no tener que presionar enter para cada movimiento
     noecho();                   // No escribir los inputs realizados por el jugador en pantalla
     keypad(stdscr, TRUE);       // Se habilitan las teclas del teclado
@@ -192,6 +192,7 @@ int main() {
         ship.initializeLifeArt();               // Asignar vidas
 
         Enemies enemies;
+        // Estado inicial del boss
         BossSpawnState bossSpawnState = InitialWait;
 
         int ch;                                 // Input del usuario
@@ -236,8 +237,8 @@ int main() {
                 case InitialWait:
                     // Estado inicial de espera
                     if (elapsed.count() >= 30.0) {            // Cuando hayan pasado 30 segundos, aparece el boss
-                        enemies.spawnBoss(ship.x);
-                        stateStartTime = currentTime;
+                        enemies.spawnBoss(ship.x);            // Crear boss
+                        stateStartTime = currentTime;         // Actualizar contador de tiempo
                         bossSpawnState = WaitingForBossDeath; // El estado cambia
                     }
                     break;
@@ -245,7 +246,7 @@ int main() {
                 case WaitingForBossDeath:
                     // Si el boss está muerto, entonces se espera un momento antes de que aparezca
                     if (enemies.isBossDead()) { 
-                        stateStartTime = currentTime;
+                        stateStartTime = currentTime;        // Actualizar contador de tiempo
                         bossSpawnState = DelayAfterDeath;    // El estado cambia
                     }
                     break;
@@ -260,8 +261,8 @@ int main() {
                 case ReadyToSpawn:
                     // Si el boss está muerto y el jugador solo tiene una nave, puede volver a aparecer
                     if (enemies.isBossDead()) {
-                        enemies.spawnBoss(ship.x);
-                        stateStartTime = currentTime;
+                        enemies.spawnBoss(ship.x);             // Crear boss
+                        stateStartTime = currentTime;         // Actualizar contador de tiempo
                         bossSpawnState = WaitingForBossDeath; // El estado cambia
                     }
                     break;
