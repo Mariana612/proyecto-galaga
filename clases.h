@@ -664,9 +664,8 @@ void handleCollision(const std::unique_ptr<Enemy>& enemy, Nave& player) {
                 int h = enemy->y + enemy->height();
 
                 bool xCheck = bala.xposi > enemy->x && bala.xposi <= enemyW;
-                bool yCheck = bala.yposi == enemy->y; // && bala.yposi <= h;
+                bool yCheck = bala.yposi == enemy->y;
 
-                // If bullet hits an enemy, destroy the enemy and the bullet
                 if (xCheck && yCheck) {
 
                     if (auto* boss = dynamic_cast<BossEnemy*>(enemy.get())) {
@@ -677,11 +676,7 @@ void handleCollision(const std::unique_ptr<Enemy>& enemy, Nave& player) {
                             }
                         }
                     }  
-
-                    //std::cout<< enemy->puntuacion <<std::endl;
                     finalScore = finalScore + enemy->puntuacion;
-                    //std::cout<< finalScore <<std::endl;
-                    //napms(1000);
                     enemy->isAlive = false;
                     nave.removeBala(i);
                     --i;
@@ -742,9 +737,6 @@ void handleInput(int ch, Nave& ship) { // Input del jugador
             break;
         case KEY_RIGHT:
             ship.moveRight(COLS);   // Cuando se presiona la flecha derecha se mueve a la derecha
-            break;
-        case 'd':
-            ship.decreaseLife();    // Cuando se presiona la letra d, se pierde una vida
             break;
         case ' ':
             ship.shoot();
