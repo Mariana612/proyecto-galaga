@@ -20,7 +20,7 @@ public:
     }
     
     void drawBala() {
-        mvaddch(yposi, xposi, '|'); // Dibuja la bala en la posición (x, y)
+        mvaddch(yposi, xposi, '|');               // Dibuja la bala en la posición (x, y)
         refresh();
     }
     void moveDown(){
@@ -61,11 +61,11 @@ public:
         return art.size();
     }
     
-    void moveLeft() {   // Movimiento a la izquierda
+    void moveLeft() {                                             // Movimiento a la izquierda
         if (x > 0) --x;
     }
 
-    void moveRight(int maxWidth) {  // Movimiento a la derecha
+    void moveRight(int maxWidth) {                                // Movimiento a la derecha
             if (showSecondShip == true){
                 if (x < maxWidth - static_cast<int>(30)) ++x;
             };
@@ -74,11 +74,11 @@ public:
             }
     }
 
-    void drawNave() {   // Dibuja la nave
+    void drawNave() {                                             // Dibuja la nave
         for (size_t i = 0; i < art.size(); ++i) {
             mvaddstr(y + i, x, art[i].c_str());
         }
-        if (showSecondShip) { // Draw la segunda nave si el flag esta set
+        if (showSecondShip) {                                     // Draw la segunda nave si el flag esta set
             for (size_t i = 0; i < art.size(); ++i) {
                 mvaddstr(y + i, x + static_cast<int>(18), art[i].c_str()); // Posiciona la segunda nave a la derecha 
             }
@@ -141,30 +141,30 @@ public:
         bullet.~Bala();
     }
 
-    void decreaseLife() { // Perder una vida
+    void decreaseLife() {              // Perder una vida
         if (showSecondShip == false) { // Draw the second ship if the flag is set
             if (lives >= 0) {
                 --lives;
-                x = COLS / 2 - 7; // Se coloca la nave en el centro
+                x = COLS / 2 - 7;      // Se coloca la nave en el centro
                 y = LINES - 6;
             }  
         }
-        if (showSecondShip == true) { // Draw the second ship if the flag is set
+        if (showSecondShip == true) {  // Draw the second ship if the flag is set
             if (lives >= 0) {
-                x = COLS / 2 - 7; // Se coloca la nave en el centro
+                x = COLS / 2 - 7;      // Se coloca la nave en el centro
                 y = LINES - 6;
             }  
         }
     }
 };
 
-void handleInput(int ch, Nave& ship) { // Input del jugador
+void handleInput(int ch, Nave& ship) {   // Input del jugador
     switch (ch) {
         case KEY_LEFT:
-            ship.moveLeft();    // Cuando se presiona la flecha izquierda se mueve a la izquierda
+            ship.moveLeft();             // Cuando se presiona la flecha izquierda se mueve a la izquierda
             break;
         case KEY_RIGHT:
-            ship.moveRight(COLS);   // Cuando se presiona la flecha derecha se mueve a la derecha
+            ship.moveRight(COLS);        // Cuando se presiona la flecha derecha se mueve a la derecha
             break;
         case ' ':
             ship.shoot();

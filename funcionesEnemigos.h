@@ -1,4 +1,12 @@
+#include <ncurses.h>
+#include <vector>
+#include <iostream>
+#include <memory>
+#include <cstdlib>
+#include <ctime>
 #include "enemy.h"
+#include "nave-balas.h"
+
 
 
 class Enemies {
@@ -98,14 +106,14 @@ public:
 
     void adjustSpacing(int width, int numberOfEnemies, int &spacing) {
         int totalWidth = (width + spacing) * numberOfEnemies - spacing;  // Total width con el espacio inicial
-        int availableSpace = COLS - (2 * 10);  // Espacio horizontal disponible
+        int availableSpace = COLS - (2 * 10);                            // Espacio horizontal disponible
 
         // Increase spacing si hay campo
         while (totalWidth < availableSpace) {
-            spacing += 2;  // Increase spacing gradualmente
+            spacing += 2;                                                // Increase spacing gradualmente
             totalWidth = (width + spacing) * numberOfEnemies - spacing;
             if (totalWidth > availableSpace) {
-                spacing -= 2;  // Reducir si ya no hay espacio
+                spacing -= 2;                                           // Reducir si ya no hay espacio
                 break;
             }
         }
@@ -162,7 +170,7 @@ public:
 
     // Cehck colision de la segunnda nave
     if (showSecondShip) {
-        int secondShipX = player.x + 15; // Calcula la posicion X para la segund anave
+        int secondShipX = player.x + 15;                                           // Calcula la posicion X para la segunda nave
         for (int i = 0; i < player.height(); ++i) {
             for (int j = 0; j < player.width(); ++j) {
                 int px = secondShipX + j;
@@ -181,10 +189,10 @@ public:
 }
 
 bool checkBulletCollision(Nave& player) {
-    int secondShipOffsetX = 18; // Asume un offset de 18 para la segunda nave
+    int secondShipOffsetX = 18;                                                        // Asume un offset de 18 para la segunda nave
 
     for (auto& enemy : enemyList) {
-        if (auto* turret = dynamic_cast<TurretEnemy*>(enemy.get())) { // Check si el enemigo es un TurretEnemy
+        if (auto* turret = dynamic_cast<TurretEnemy*>(enemy.get())) {                  // Check si el enemigo es un TurretEnemy
             for (int i = 0; i < turret->bullets.size(); ++i) {
                 auto& bullet = turret->bullets[i];
                 
@@ -200,9 +208,9 @@ bool checkBulletCollision(Nave& player) {
                                      bullet.yposi < player.y + 3;
 
                 if (hitPrimary || hitSecondShip) {
-                    turret->bullets.erase(turret->bullets.begin() + i); // Borra la bala que colisiono
+                    turret->bullets.erase(turret->bullets.begin() + i);                 // Borra la bala que colisiono
                     handleBulletCollision(player);
-                    return true;  // Return true si hubo colision
+                    return true;                                                        // Return true si hubo colision
                 }
             }
         }
@@ -212,7 +220,7 @@ bool checkBulletCollision(Nave& player) {
 
 void handleBulletCollision(Nave& player) {
     if(!showSecondShip){
-        player.decreaseLife();  // Player loses a life
+        player.decreaseLife();                                                           // Player loses a life
 
     };
     if(showSecondShip){
@@ -220,12 +228,12 @@ void handleBulletCollision(Nave& player) {
         showSecondShip = false;
     }
 
-    if (player.lives != -1) { // Si se pierde una vida, dar momento de respiro al jugador
-            clear();    // Limpiar pantalla
-            player.drawLife(COLS / 5, LINES); // Mostrar vidas 
-            mvprintw(LINES / 2, COLS / 2 - 5, "READY"); // Mensaje de alerta
-            refresh();  // Refrescar la pantalla
-            napms(2000);    // Se genera un delay de 2 segundos
+    if (player.lives != -1) {                                                            // Si se pierde una vida, dar momento de respiro al jugador
+            clear();                                                                     // Limpiar pantalla
+            player.drawLife(COLS / 5, LINES);                                            // Mostrar vidas 
+            mvprintw(LINES / 2, COLS / 2 - 5, "READY");                                  // Mensaje de alerta
+            refresh();                                                                   // Refrescar la pantalla
+            napms(2000);                                                                 // Se genera un delay de 2 segundos
         }
         clearTurretBullets();
         resetPositions();
@@ -236,9 +244,9 @@ void handleCollision(const std::unique_ptr<Enemy>& enemy, Nave& player) {
     if (auto* boss = dynamic_cast<BossEnemy*>(enemy.get())) {
             player.decreaseLife();
             if (boss->getCurrentState() == BossEnemy::Holding) {
-                boss->setCurrentState(BossEnemy::HasPlayer); // Set the state to HasPlayer
+                boss->setCurrentState(BossEnemy::HasPlayer);                             // Set the state to HasPlayer
                 if (player.lives != -1) {
-                    mvprintw(LINES / 2, COLS / 2 - 5, "NAVE CAPTURADA"); // Imprimir mensaje
+                    mvprintw(LINES / 2, COLS / 2 - 5, "NAVE CAPTURADA");                 // Imprimir mensaje
                     refresh();
                     napms(2000);
                     enoughLives = true;
@@ -257,12 +265,12 @@ void handleCollision(const std::unique_ptr<Enemy>& enemy, Nave& player) {
             player.decreaseLife();
             showSecondShip = false;
         }
-        if (player.lives != -1) { // Si se pierde una vida, dar momento de respiro al jugador
-            clear();    // Limpiar pantalla
-            player.drawLife(COLS / 5, LINES); // Mostrar vidas 
-            mvprintw(LINES / 2, COLS / 2 - 5, "READY"); // Mensaje de alerta
-            refresh();  // Refrescar la pantalla
-            napms(2000);    // Se genera un delay de 2 segundos
+        if (player.lives != -1) {                                        // Si se pierde una vida, dar momento de respiro al jugador
+            clear();                                                     // Limpiar pantalla
+            player.drawLife(COLS / 5, LINES);                            // Mostrar vidas 
+            mvprintw(LINES / 2, COLS / 2 - 5, "READY");                  // Mensaje de alerta
+            refresh();                                                   // Refrescar la pantalla
+            napms(2000);                                                 // Se genera un delay de 2 segundos
         }
         clearTurretBullets();
         resetPositions();

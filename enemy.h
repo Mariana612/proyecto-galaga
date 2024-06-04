@@ -34,14 +34,14 @@ public:
 
 class NormalEnemy : public Enemy {
 private:
-    int moveDirection; // 1 para moverse hacia abajo, -1 para moverse hacia arriba
+    int moveDirection;              // 1 para moverse hacia abajo, -1 para moverse hacia arriba
     int moveCounter;
     int moveThreshold;
-    float moveProbability; // Probabilidad de que se mueva en el siguiente ciclo
+    float moveProbability;          // Probabilidad de que se mueva en el siguiente ciclo
     
 
 public:
-    NormalEnemy(int posX, int posY) : Enemy(posX, posY), moveDirection(1), moveCounter(0), moveThreshold(5), moveProbability(0.4) { 
+    NormalEnemy(int posX, int posY) : Enemy(posX, posY), moveDirection(1), moveCounter(0), moveThreshold(5), moveProbability(0.5) { 
         puntuacion = 100;
         art = {
             "  /---\\  ",
@@ -54,13 +54,13 @@ public:
 
     void update(int playerX, int playerY, Nave& player) override {
         if (rand() % 100 < moveProbability * 100) { // Convierte a porcentaje
-            moveCounter++; // Increment counter 
+            moveCounter++;                          // Increment counter 
             if (moveCounter >= moveThreshold) { 
                 moveCounter = 0; // Reset counter
                 if ((y >= 2+ playerY - static_cast<int>(art.size()) && moveDirection == 1) || (y <= 0 && moveDirection == -1)) {
-                    moveDirection *= -1; // Reversa direccion cuando toca el borde de la pantalla
+                    moveDirection *= -1;            // Reversa direccion cuando toca el borde de la pantalla
                 }
-                y += moveDirection; // Se mueve en base a la direccion
+                y += moveDirection;                 // Se mueve en base a la direccion
             }
         }
     }
@@ -69,10 +69,10 @@ public:
 
 class TurretEnemy : public Enemy {
 private:
-    int moveCounter = 0; // Counter
-    int shootCounter = 0; // Counter
-    int moveThreshold = 10; // Shoot cada 10 updates
-    int shootThreshold = 60; // Shoot cada 60 updates
+    int moveCounter = 0;         // Counter
+    int shootCounter = 0;        // Counter
+    int moveThreshold = 10;      // Shoot cada 10 updates
+    int shootThreshold = 60;     // Shoot cada 60 updates
 
 public:
     TurretEnemy(int posX, int posY) : Enemy(posX, posY) {
@@ -86,7 +86,7 @@ public:
     std::vector<Bala> bullets;
 
     void shoot() {
-        if (!isAlive) return; // no dispara si la torreta esta muerta
+        if (!isAlive) return;                 // no dispara si la torreta esta muerta
         int centerX = x + (width() / 2);
         Bala tempBala(centerX, y + height()); // Bullet empieza desde abajo de la torreta
         bullets.push_back(tempBala);
@@ -104,8 +104,8 @@ public:
 
     void update(int playerX, int playerY, Nave& player) override {
         if (!isAlive) {
-            bullets.clear(); // Limpia todas las balas cuando esta muerto
-            return; // Stop updating cuando no esta vivo
+            bullets.clear();                                               // Limpia todas las balas cuando esta muerto
+            return;                                                        // Stop updating cuando no esta vivo
         }
 
         // Update movimiento
@@ -113,7 +113,7 @@ public:
         if (moveCounter >= moveThreshold) {
             moveCounter = 0;
             x--; // Move left
-            if (x + width() < 0) { // si la torreta desaparece de la pantalla mover a la derecha
+            if (x + width() < 0) {                                         // si la torreta desaparece de la pantalla mover a la derecha
                 x = COLS - 1;
             }
         }
@@ -122,13 +122,13 @@ public:
         shootCounter++;
         if (shootCounter >= shootThreshold) {
             shootCounter = 0;
-            shoot(); // Turret dispara una bala
+            shoot();                                                       // Turret dispara una bala
         }
             
         // Update la posicion de las balas
         for (int i = 0; i < bullets.size(); ++i) {
             bullets[i].moveDown();
-            if (bullets[i].yposi >= LINES) { // Remove bullets que desaparecen de la pantalla
+            if (bullets[i].yposi >= LINES) {                               // Remove bullets que desaparecen de la pantalla
                 bullets.erase(bullets.begin() + i);
                 --i;
             }
@@ -136,9 +136,9 @@ public:
     }
 
     void draw() override {
-        if (!isAlive) return; // No dibujar si esta muerto
+        if (!isAlive) return;                                              // No dibujar si esta muerto
         Enemy::draw(); 
-        drawBullets(); // Draw balas
+        drawBullets();                                                     // Draw balas
     }
 };
 
@@ -175,33 +175,33 @@ public:
     void update(int playerX, int playerY, Nave& player) override {
         switch (currentState) {
             case Descending:
-                moveCounter++; // Increment el counter
+                moveCounter++;                                             // Increment el counter
                 if (moveCounter >= moveThreshold) {
-                    moveCounter = 0; // Reset counter 
-                    y += 1; // Se mueve lentamente abajo
+                    moveCounter = 0;                                       // Reset counter 
+                    y += 1;                                                // Se mueve lentamente abajo
                     if (y >= LINES / 1.3) { 
-                        currentState = Holding; // Cambia estado a holding
+                        currentState = Holding;                            // Cambia estado a holding
                     }
                 }
                 break;
 
             case Holding:
-                    currentState = LateralMove; // Cambia a lateralMove si no toca al jugador
+                    currentState = LateralMove;                            // Cambia a lateralMove si no toca al jugador
                     y = 0; 
                 break;
 
             case HasPlayer:
-                y = 0; // Se mueve arriba si toca al jugador
+                y = 0;                                                     // Se mueve arriba si toca al jugador
                 x += lateralDirection;
                 if (x <= 0 || x >= COLS - static_cast<int>(art[0].size())) {
-                    lateralDirection *= -1; // Cambia de direccion al tocar los bordes de la pantalla
+                    lateralDirection *= -1;                                // Cambia de direccion al tocar los bordes de la pantalla
                 }
                 break;
             
             case LateralMove:
                 x += lateralDirection;
                 if (x <= 0 || x >= COLS - static_cast<int>(art[0].size())) {
-                    lateralDirection *= -1; // Cambia de direccion al tocar los bordes de la pantalla
+                    lateralDirection *= -1;                                // Cambia de direccion al tocar los bordes de la pantalla
                 }
                 break;
 
@@ -217,7 +217,7 @@ public:
     }
 
     void draw() override {
-        if (!isAlive) return; //No dibujar si no esta vivo
-        Enemy::draw(); //Use la base de la clase para dibujar
+        if (!isAlive) return;                                              //No dibujar si no esta vivo
+        Enemy::draw();                                                     //Use la base de la clase para dibujar
     }
 };
