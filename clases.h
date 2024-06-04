@@ -256,38 +256,42 @@ public:
         }
     }
 
-        void update(int playerX, int playerY, Nave& player) override {
-            if (!isAlive) {
-                bullets.clear(); // Optionally clear all bullets when not alive
-                return; // Stop updating when not alive
-            }
+    void removeAllBullets(){
+        bullets.clear();
+    }
 
-            // Update movement
-            moveCounter++;
-            if (moveCounter >= moveThreshold) {
-                moveCounter = 0;
-                x--; // Move left
-                if (x + width() < 0) { // If the turret goes off-screen, reset to the far right
-                    x = COLS - 1;
-                }
-            }
+    void update(int playerX, int playerY, Nave& player) override {
+        if (!isAlive) {
+            bullets.clear(); // Optionally clear all bullets when not alive
+            return; // Stop updating when not alive
+        }
 
-            // Update shooting
-            shootCounter++;
-            if (shootCounter >= shootThreshold) {
-                shootCounter = 0;
-                shoot(); // Turret shoots a bullet
-            }
-            
-            // Update bullets' positions
-            for (int i = 0; i < bullets.size(); ++i) {
-                bullets[i].moveDown();
-                if (bullets[i].yposi >= LINES) { // Remove bullets that go off the bottom of the screen
-                    bullets.erase(bullets.begin() + i);
-                    --i;
-                }
+        // Update movement
+        moveCounter++;
+        if (moveCounter >= moveThreshold) {
+            moveCounter = 0;
+            x--; // Move left
+            if (x + width() < 0) { // If the turret goes off-screen, reset to the far right
+                x = COLS - 1;
             }
         }
+
+        // Update shooting
+        shootCounter++;
+        if (shootCounter >= shootThreshold) {
+            shootCounter = 0;
+            shoot(); // Turret shoots a bullet
+        }
+            
+        // Update bullets' positions
+        for (int i = 0; i < bullets.size(); ++i) {
+            bullets[i].moveDown();
+            if (bullets[i].yposi >= LINES) { // Remove bullets that go off the bottom of the screen
+                bullets.erase(bullets.begin() + i);
+                --i;
+            }
+        }
+    }
 
     void draw() override {
         if (!isAlive) return; // Do not draw if not alive
@@ -406,11 +410,9 @@ public:
             enemyList.push_back(std::make_unique<NormalEnemy>(posX, startY));
             
             // Calcula posicion de las torretas entre los enemigos normales
-             if (i % 2 == 0 && i < maxEnemiesPerRow - 1) { // Spawn torreta
             int turretPosX = posX + enemyWidth + (spacing - turretWidth) / 2;
             initialPositions.push_back({turretPosX, turretY});  // Gurda posicion inicial
             enemyList.push_back(std::make_unique<TurretEnemy>(turretPosX, turretY));
-        }
     }
 }
 
@@ -604,6 +606,7 @@ void handleBulletCollision(Nave& player) {
             refresh();  // Refrescar la pantalla
             napms(2000);    // Se genera un delay de 2 segundos
         }
+        clearTurretBullets();
         resetPositions();
 
 }
@@ -618,9 +621,11 @@ void handleCollision(const std::unique_ptr<Enemy>& enemy, Nave& player) {
                     refresh();
                     napms(2000);
                     enoughLives = true;
+                    clearTurretBullets();
                     resetPositions();
                 } else if (player.lives == -1) {
                     enoughLives = false;
+                    clearTurretBullets();
                     resetPositions();
                 }
             }
@@ -638,6 +643,7 @@ void handleCollision(const std::unique_ptr<Enemy>& enemy, Nave& player) {
             refresh();  // Refrescar la pantalla
             napms(2000);    // Se genera un delay de 2 segundos
         }
+        clearTurretBullets();
         resetPositions();
     }
 }
@@ -663,6 +669,7 @@ void handleCollision(const std::unique_ptr<Enemy>& enemy, Nave& player) {
                         if (boss->getCurrentState() == BossEnemy::HasPlayer) {
                             if (enoughLives == true) {
                                 showSecondShip = true;
+                                clearTurretBullets();
                                 resetPositions();
                             }
                         }
@@ -682,6 +689,14 @@ void handleCollision(const std::unique_ptr<Enemy>& enemy, Nave& player) {
             if (i < initialPositions.size()) {  // Check to prevent out-of-range errors
                 enemyList[i]->x = initialPositions[i].first;
                 enemyList[i]->y = initialPositions[i].second;
+            }
+        }
+    }
+
+    void clearTurretBullets(){
+        for (const auto& enemy : enemyList) {
+            if (auto* turret = dynamic_cast<TurretEnemy*>(enemy.get())) {
+                turret->removeAllBullets();
             }
         }
     }
