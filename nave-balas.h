@@ -4,6 +4,7 @@
 #include <memory>
 #include <cstdlib>
 #include <ctime>
+#include <SDL2/SDL_mixer.h>
 
 bool showSecondShip = false;                        // Flag para mostrar la segunda nave
 int finalScore = 0;
@@ -36,7 +37,7 @@ public:
     std::vector<std::string> lifeArt;                             // ASCII art de las vidas
     int lives = 2;                                                // Cantidad de vidas
     std::vector<Bala> balas; 
-    
+    Mix_Chunk *balaSound;
 
     Nave(int posX, int posY) : x(posX), y(posY) {                 // Se ocupan las posiciones
         // Arte de la nave
@@ -45,6 +46,16 @@ public:
             "   /-\\",
             "--¦^¦^¦--"
         };
+        balaSound = Mix_LoadWAV("pew.mp3");
+        if (!balaSound) {
+            fprintf(stderr, "No se pudo cargar el sonido de la bala: %s\n", Mix_GetError());
+        }
+    }
+
+    ~Nave() {                                                     // Destructor
+        if (balaSound) {
+            Mix_FreeChunk(balaSound);
+        }
     }
 
     void initializeLifeArt() {
@@ -97,6 +108,10 @@ public:
         }
     }
     void shoot() {
+         if (balaSound) {
+            Mix_VolumeChunk(balaSound, 20);
+            Mix_PlayChannel(-1, balaSound, 0); // Reproduce el sonido en cualquier canal libre
+        }
         if (showSecondShip == true){
             int center1 = x + 4;
             Bala tempbala1 = Bala(center1, y);
