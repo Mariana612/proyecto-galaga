@@ -157,6 +157,7 @@ public:
 
     BossEnemy(int posX) : Enemy(posX, 0), currentState(Descending), lateralDirection(1), moveCounter(0), moveThreshold(10) {
         puntuacion = 500;
+        // Arte del boss Galaga
         art = {
             "  /---\\",
             " --WWW--",
@@ -164,60 +165,62 @@ public:
         };
     }
 
-    State getCurrentState() const{
+    State getCurrentState() const{               // Se obtiene el estado actual
         return currentState;
     }
 
-    void setCurrentState(State state) {
+    void setCurrentState(State state) {          // Se guarda el estado deseado
         currentState = state;
     }
 
+    // Actualizar la posición del enemigo
     void update(int playerX, int playerY, Nave& player) override {
         switch (currentState) {
             case Descending:
-                moveCounter++;                                             // Increment el counter
+
+                moveCounter++;                   // Incrementar el contador
                 if (moveCounter >= moveThreshold) {
-                    moveCounter = 0;                                       // Reset counter 
-                    y += 1;                                                // Se mueve lentamente abajo
+                    moveCounter = 0;             // Inicializar el contador 
+                    y += 1;                      // Se mueve lentamente abajo
                     if (y >= LINES / 1.3) { 
-                        currentState = Holding;                            // Cambia estado a holding
+                        currentState = Holding;  // Cambia estado a holding
                     }
                 }
                 break;
 
             case Holding:
-                    currentState = LateralMove;                            // Cambia a lateralMove si no toca al jugador
+                    currentState = LateralMove;  // Cambia a lateralMove si no toca al jugador
                     y = 0; 
                 break;
 
             case HasPlayer:
-                y = 0;                                                     // Se mueve arriba si toca al jugador
+                y = 0;                          // Se mueve arriba si toca al jugador
                 x += lateralDirection;
                 if (x <= 0 || x >= COLS - static_cast<int>(art[0].size())) {
-                    lateralDirection *= -1;                                // Cambia de direccion al tocar los bordes de la pantalla
+                    lateralDirection *= -1;     // Cambia de dirección al tocar los bordes de la pantalla
                 }
                 break;
             
             case LateralMove:
-                x += lateralDirection;
+                x += lateralDirection;          // Se mueve arriba si no toca al jugador
                 if (x <= 0 || x >= COLS - static_cast<int>(art[0].size())) {
-                    lateralDirection *= -1;                                // Cambia de direccion al tocar los bordes de la pantalla
+                    lateralDirection *= -1;     // Cambia de dirección al tocar los bordes de la pantalla
                 }
                 break;
 
         }
     }
 
-    int width() const override {
+    int width() const override {                // Ancho del enemigo
         return art.empty() ? 0 : art[0].size();
     }
 
-    int height() const override {
+    int height() const override {               // Altura del ASCII del enemigo
         return art.size();
     }
 
     void draw() override {
-        if (!isAlive) return;                                              //No dibujar si no esta vivo
-        Enemy::draw();                                                     //Use la base de la clase para dibujar
+        if (!isAlive) return;                   //No dibujar si no esta vivo
+        Enemy::draw();                          //Dibujar al enemigo
     }
 };
