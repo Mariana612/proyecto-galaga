@@ -181,8 +181,11 @@ int main() {
     bool restartGame = true;                    // Condición de reinicio del juego
 
     do {
+        // Archivo que contiene los nombres y las puntuaciones
         std::string highScoreFile = "highscores.txt";
+        // Trabajar con el archivo de las puntuaciones
         HighScores highScores(highScoreFile);
+
         int finalScore = 0;
         bool won = false;
         srand(time(0));
@@ -385,11 +388,10 @@ int main() {
             napms(6000);                                // Se genera un delay de 6 segundos
         }
 
-        std::string playerName = "Player";  // Get player name from the input
-
+        std::string playerName = "Jugador";              // Se pone el nombre del jugador
+        // Se guarda el nombre y el puntaje
         highScores.updateHighScores(playerName, finalScore);
-        highScores.displayHighScores();
-        napms(6000);                                // Se genera un delay de 6 segundos
+        napms(6000);                                    // Se genera un delay de 6 segundos
 
         finalize();                                     // Terminar programa
 
