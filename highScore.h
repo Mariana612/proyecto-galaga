@@ -10,7 +10,6 @@ public:
     void readHighScores();
     void writeHighScores() const;
     void updateHighScores(const std::string& name, int score);
-    void displayHighScores() const;
 
 private:
     struct HighScore {
