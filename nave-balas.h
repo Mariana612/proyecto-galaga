@@ -114,7 +114,7 @@ public:
     }
 
     void drawLife(int maxX, int maxY) {                           // Dibujar las vidas
-        int startX = maxX - (lifeArt[0].size() + 1) * lives;
+        int startX = maxX - (lifeArt[0].size() + 3) * lives;
         int startY = maxY - lifeArt.size();
         for (int i = 0; i < lives; ++i) {
             for (size_t j = 0; j < lifeArt.size(); ++j) {
