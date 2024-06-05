@@ -50,6 +50,8 @@ private:
     
 
 public:
+int animation = 0;
+int animationCounter = 0;
     NormalEnemy(int posX, int posY) : Enemy(posX, posY), moveDirection(1), moveCounter(0), moveThreshold(5), moveProbability(0.5) { 
         puntuacion = 100;
         art = {
@@ -60,6 +62,23 @@ public:
         // Aleatorizar la probabilidad de moverse entre un 30% a 70% para variación
         moveProbability = 0.3f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX/(0.4f)));
     }
+     void changeArtNormal(int flag){
+        if(flag==1){
+        std::vector<std::string> art2 = {
+            "  doob  ",
+            "  ~||~  "
+        };
+        art = art2;
+         
+        }
+        else{
+        std::vector<std::string> art2 = {
+            "  doob  ",
+            "  ^/\\^  "
+        };
+        art = art2;
+        }
+     }
 
     void update(int playerX, int playerY, Nave& player) override {
         if (rand() % 100 < moveProbability * 100) {                         // Convierte a porcentaje
@@ -75,7 +94,18 @@ public:
     }
 
     void draw() override {                                                  // Dibujar enemigo
-        if (!isAlive) return;                                               // No dibujar si esta muerto
+        if (!isAlive) return;    
+        if(animation == 0 && animationCounter == 20){
+            animation = 1;
+        }
+        else if (animation == 1 && animationCounter == 20){
+            animation = 0;}
+
+        if(animationCounter == 20){
+        animationCounter = -1;
+        }
+        animationCounter++; 
+        changeArtNormal(animation)   ;                                           // No dibujar si esta muerto
         attron(COLOR_PAIR(NORMAL_PAIR));
         Enemy::draw();
         attroff(COLOR_PAIR(NORMAL_PAIR)); 
@@ -86,24 +116,50 @@ public:
 // --------------------ENEMIGO QUE DISPARA--------------------
 class TurretEnemy : public Enemy {
 private:
+    
     int moveCounter = 0;                                                    // Contador
     int shootCounter = 0;                                                   // Contador
     int moveThreshold = 10;                                                 // Disparar cada 10 updates
     int shootThreshold = 60;                                                // Disparar cada 60 updates
 
 public:
+int animation = 0;
+int animationCounter = 0;
     TurretEnemy(int posX, int posY) : Enemy(posX, posY) {
         puntuacion = 300;
         art = {
             ".'='.",
             "/|=|\\",
         };
+
+    }
+
+    void changeArtTurret(int flag){
+        if(flag==1){
+        std::vector<std::string> art2 = {
+            ".'o'.",
+            "\\\\=//",
+        };
+        art = art2;
+         
+        }
+        else{
+        std::vector<std::string> art2  = {
+            ".'='.",
+            "/|=|\\",
+        };
+        
+        art = art2;
+        }
     }
 
     std::vector<Bala> bullets;
 
+
+    
     void shoot() {
-        if (!isAlive) return;                                              // no dispara si la torreta esta muerta
+        if (!isAlive) return;     
+                                             // no dispara si la torreta esta muerta
         int centerX = x + (width() / 2);
         Bala tempBala(centerX, y + height());                              // Bullet empieza desde abajo de la torreta
         bullets.push_back(tempBala);
@@ -126,6 +182,17 @@ public:
         }
 
         // Update movimiento
+        if(animation == 0 && animationCounter == 10){
+            animation = 1;
+        }
+        else if (animation == 1 && animationCounter == 10){
+            animation = 0;}
+
+        if(animationCounter == 10){
+        animationCounter = -1;
+        }
+        animationCounter++;
+        changeArtTurret(animation)   ; 
         moveCounter++;
         if (moveCounter >= moveThreshold) {
             moveCounter = 0;
@@ -173,16 +240,36 @@ private:
     int moveThreshold;                           // Threshold a llegar antes de moverse hacia abajo
 
 public:
-
+int animation = 0;
+int animationCounter = 0;
     BossEnemy(int posX) : Enemy(posX, 0), currentState(Descending), lateralDirection(1), moveCounter(0), moveThreshold(10) {
         puntuacion = 500;
         // Arte del boss Galaga
         art = {
             "  /---\\",
             " --WWW--",
-            "{#######}"
+            "{#o#o#o#}"
         };
     }
+         void changeArtBoss(int flag){
+        if(flag==1){
+        std::vector<std::string> art2 = {
+            "  /---\\",
+            " --WWW--",
+            "{#o#o#o#}"
+        };
+        art = art2;
+         
+        }
+        else{
+        std::vector<std::string> art2 = {
+            "  /---\\",
+            " --WWW--",
+            "{0#0#0#0}"
+        };
+        art = art2;
+        }
+     }
 
     State getCurrentState() const{               // Se obtiene el estado actual
         return currentState;
@@ -194,6 +281,19 @@ public:
 
     // Actualizar la posición del enemigo
     void update(int playerX, int playerY, Nave& player) override {
+                // Update movimiento
+        if(animation == 0 && animationCounter == 25){
+            animation = 1;
+        }
+        else if (animation == 1 && animationCounter == 25){
+            animation = 0;}
+
+        if(animationCounter == 25){
+        animationCounter = -1;
+        }
+        animationCounter++;
+        changeArtBoss(animation)   ; 
+
         switch (currentState) {
             case Descending:
 

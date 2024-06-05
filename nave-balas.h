@@ -43,6 +43,8 @@ public:
 // --------------------NAVE DEL JUGADOR--------------------
 class Nave {
 public:
+int animation = 0;
+int animationCounter = 0;
     int x, y;                                                     // Posición de la nave
     std::vector<std::string> art;                                 // ASCII art de la nave
     std::vector<std::string> lifeArt;                             // ASCII art de las vidas
@@ -62,6 +64,24 @@ public:
             fprintf(stderr, "No se pudo cargar el sonido de la bala: %s\n", Mix_GetError());
         }
     }
+
+    void changeArtNave(int flag){
+        if(flag==1){
+        std::vector<std::string> art2 =  {
+            "  /-\\  ",
+            "-|^ ^|-"
+        };
+        lifeArt = art2;
+         
+        }
+        else{
+        std::vector<std::string> art2 =  {
+            "       ",
+            "       "
+        };
+        lifeArt = art2;
+        }
+     }
 
     ~Nave() {                                                     // Destructor
         if (balaSound) {
@@ -89,7 +109,8 @@ public:
         if (x > 0) --x;
     }
 
-    void moveRight(int maxWidth) {                                // Movimiento a la derecha
+    void moveRight(int maxWidth) {    
+             // Movimiento a la derecha
             if (showSecondShip == true){
                 if (x < maxWidth - static_cast<int>(31)) ++x;     // Si hay una segunda nave, que esta no se pase del límite tampoco
             };
@@ -98,7 +119,7 @@ public:
             }
     }
 
-    void drawNave() {                                             // Dibujar la nave
+    void drawNave() {                                           // Dibujar la nave
         for (size_t i = 0; i < art.size(); ++i) {
             attron(COLOR_PAIR(SHIP_PAIR));
             mvaddstr(y + i, x, art[i].c_str());
@@ -114,6 +135,17 @@ public:
     }
 
     void drawLife(int maxX, int maxY) {                           // Dibujar las vidas
+        if(animation == 0 && animationCounter == 25){
+            animation = 1;
+        }
+        else if (animation == 1 && animationCounter == 25){
+            animation = 0;}
+
+        if(animationCounter == 25){
+        animationCounter = -1;
+        }
+        animationCounter++;
+        changeArtNave(animation)   ;   
         int startX = maxX - (lifeArt[0].size() + 3) * lives;
         int startY = maxY - lifeArt.size();
         for (int i = 0; i < lives; ++i) {
