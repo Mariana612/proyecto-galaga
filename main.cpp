@@ -365,8 +365,10 @@ int main() {
             clear();                                    // Limpiar pantalla
             // Imprimir mensaje
             mvprintw(LINES / 2, COLS / 2 - 5, "GANASTE");
+            // Cantidad de vidas restantes
+            mvprintw(LINES / 2 + 1, COLS / 2 - 5, "VIDAS RESTANTES: %d",ship.lives + 1);
             // Imprimir puntuación
-            mvprintw(LINES / 2 +1, COLS / 2 - 5, "SCORE:%d",finalScore);
+            mvprintw(LINES / 2 + 2, COLS / 2 - 5, "SCORE: %d",finalScore);
             refresh();                                  // Refrescar la pantalla
             napms(6000);                                // Se genera un delay de 6 segundos
         }
