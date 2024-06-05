@@ -6,9 +6,10 @@
 
 #include <chrono>
 #include <cstring>
-#include "funcionesEnemigos.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_mixer.h>
+
+#include "highScore.h"
 
 void initialize() {
     initscr();                  // Se empieza el ncurses
@@ -180,6 +181,8 @@ int main() {
     bool restartGame = true;                    // Condición de reinicio del juego
 
     do {
+        std::string highScoreFile = "highscores.txt";
+        HighScores highScores(highScoreFile);
         int finalScore = 0;
         bool won = false;
         srand(time(0));
@@ -381,6 +384,12 @@ int main() {
             refresh();                                  // Refrescar la pantalla
             napms(6000);                                // Se genera un delay de 6 segundos
         }
+
+        std::string playerName = "Player";  // Get player name from the input
+
+        highScores.updateHighScores(playerName, finalScore);
+        highScores.displayHighScores();
+        napms(6000);                                // Se genera un delay de 6 segundos
 
         finalize();                                     // Terminar programa
 
