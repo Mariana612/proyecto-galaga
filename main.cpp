@@ -367,6 +367,15 @@ int main() {
             mvprintw(LINES / 2, COLS / 2 - 5, "GANASTE");
             // Cantidad de vidas restantes
             mvprintw(LINES / 2 + 1, COLS / 2 - 5, "VIDAS RESTANTES: %d",ship.lives + 1);
+            if (ship.lives + 1 == 3){
+                finalScore = finalScore + 500;
+
+            } else if (ship.lives + 1 == 2){
+                finalScore = finalScore + 200;
+
+            } else if (ship.lives + 1 == 1){
+                finalScore = finalScore + 50;
+            }
             // Imprimir puntuación
             mvprintw(LINES / 2 + 2, COLS / 2 - 5, "SCORE: %d",finalScore);
             refresh();                                  // Refrescar la pantalla
