@@ -18,8 +18,10 @@ void initialize() {
     curs_set(0);                // Esconder el cursor
     nodelay(stdscr, FALSE);     // Set getch a non-blocking
 
-    start_color();
-    use_default_colors();  // Use the terminal's default colors
+//-----------COLORES----------------
+    start_color();              // Para poder utilizar los colores
+    use_default_colors();       // Usar el color de la terminal como fondo
+    
     // Parejas de colores para el ASCII art del juego
     init_pair(1, COLOR_YELLOW, -1);
     init_pair(2, COLOR_BLUE, -1);
@@ -28,7 +30,7 @@ void initialize() {
     init_pair(5, COLOR_MAGENTA, -1);
     init_pair(6, COLOR_GREEN, -1);
 
-//-----------Musica----------------    
+//-----------MÚSICA----------------    
     if (SDL_Init(SDL_INIT_AUDIO) < 0) {
         fprintf(stderr, "No se pudo inicializar SDL: %s\n", SDL_GetError());
         exit(1);
