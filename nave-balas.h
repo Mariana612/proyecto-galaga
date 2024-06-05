@@ -57,7 +57,7 @@ public:
             "   /-\\",
             "--¦^¦^¦--"
         };
-        balaSound = Mix_LoadWAV("shot.mp3");
+        balaSound = Mix_LoadWAV("shot.mp3");                      // Sonido de disparo de la nave
         if (!balaSound) {
             fprintf(stderr, "No se pudo cargar el sonido de la bala: %s\n", Mix_GetError());
         }
@@ -126,8 +126,8 @@ public:
     }
     void shoot() {
          if (balaSound) {
-            Mix_VolumeChunk(balaSound, 30);
-            Mix_PlayChannel(-1, balaSound, 0); // Reproduce el sonido en cualquier canal libre
+            Mix_VolumeChunk(balaSound, 30);                        // El volumen es 30
+            Mix_PlayChannel(-1, balaSound, 0);                     // Reproduce el sonido en cualquier canal libre
         }
         if (showSecondShip == true){
             int center1 = x + 4;

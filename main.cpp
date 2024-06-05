@@ -28,7 +28,8 @@ void initialize() {
     init_pair(5, COLOR_MAGENTA, -1);
     init_pair(6, COLOR_GREEN, -1);
 
-     if (SDL_Init(SDL_INIT_AUDIO) < 0) {
+//-----------Musica----------------    
+    if (SDL_Init(SDL_INIT_AUDIO) < 0) {
         fprintf(stderr, "No se pudo inicializar SDL: %s\n", SDL_GetError());
         exit(1);
     }
@@ -36,7 +37,7 @@ void initialize() {
         fprintf(stderr, "No se pudo inicializar SDL_mixer: %s\n", Mix_GetError());
         exit(1);
     }
-    Mix_Music *backgroundMusic = Mix_LoadMUS("MEGALOVANIA.mp3");
+    Mix_Music *backgroundMusic = Mix_LoadMUS("MEGALOVANIA.mp3");                    // Canción que empieza cuando se inicia el programa
     if (!backgroundMusic) {
         fprintf(stderr, "No se pudo cargar la música: %s\n", Mix_GetError());
         exit(1);
@@ -50,9 +51,6 @@ void finalize() {
     SDL_Quit();
     endwin();                   // Se termina el curses
 }
-
-//-----------Musica----------------
-
 
 // --------------------MENÚ--------------------
 void drawMenu(const std::vector<std::string>& options, int highlight) {
@@ -84,7 +82,7 @@ void drawTitulo(const std::vector<std::string>& titulo) {
 
 // --------------------INSTRUCCIONES--------------------
 void drawInstructions() {
-    std::vector<std::string> instructions;              // ASCII art de las instrucciones
+    std::vector<std::string> instructions;          // ASCII art de las instrucciones
     instructions = {
             "    ___ _  _  ___ _____ ___ _   _  ___ ___ ___ ___  _  _ ___ ___ ",
             "   |_ _| \\| /  __|_   _| _ \\ | | |/ __/ __|_ _/ _ \\| \\| | __/ __|",
@@ -263,10 +261,10 @@ int main() {
         // Periodo de delay antes de que aparezcan los enemigos
         const double delayPeriod = 4.0;
 
-        const int numStars = 95;                                        // Cantidad de estrellas
+        const int numStars = 95;                                                // Cantidad de estrellas
         auto stars = initializeStars(numStars);
 
-        while ((ch = getch()) != 'q') {                                 // Mientras no se presione la letra q, seguir con el juego
+        while ((ch = getch()) != 'q') {                                         // Mientras no se presione la letra q, seguir con el juego
             auto currentTime = std::chrono::steady_clock::now();                // Tiempo actual
             std::chrono::duration<float> elapsed = currentTime - startTime;     // Tiempo que ha pasado desde el incio hasta ahora
 
