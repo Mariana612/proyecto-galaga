@@ -169,6 +169,101 @@ void drawScore(int num) {
     }
 }
 
+void drawNameTitle() {
+    std::vector<std::string> nameTitle;          // ASCII art de las instrucciones
+    nameTitle = {
+            " ___  ___  __  _   __  _____  ___   __   ___    _   _   __   __ __  __  ___  ___ ",
+            "| _\\ | __|/ _]| |/' _/|_   _|| _ \\ /  \\ | _ \\  | \\ | | /__\\ |  V  ||  \\| _ \\| __|",
+            "| v /| _|| [/\\| |`._`.  | |  | v /| /\\ || v /  |   ' || \\/ || \\_/ || -<| v /| _|",
+            "|_|_\\|___|\\__/|_||___/  |_|  |_|_\\|_||_||_|_\\  |_|\\__| \\__/ |_| |_||__/|_|_\\|___|",
+            "                                                                ",
+            "Utilize las teclas [^] [v] [<] [>] y el [ENTER] para ingresar su nombre",
+            "Solo 3 letras permitidas",
+        };
+    
+    int y = LINES / 2 - 7 - nameTitle.size() / 2;        // Imprimir las instrucciones en el centro
+    int x = COLS / 2 - nameTitle[0].size() / 2;
+    for (size_t i = 0; i < nameTitle.size(); ++i) {
+        attron(COLOR_PAIR(NORMAL_PAIR));
+        mvaddstr(y + i, x, nameTitle[i].c_str());    // Imprimir el texto
+        attroff(COLOR_PAIR(NORMAL_PAIR));
+    }
+}
+
+void drawNameLetters(int selectedLetterIndex) {
+    std::vector<std::string> letters = {
+        "[A] [B] [C] [D] [E] [F] [G] [H] [I]",
+        "[J] [K] [L] [M] [N] [O] [P] [Q] [R]",
+        "[S] [T] [U] [V] [W] [X] [Y] [Z] [-]",
+    };
+
+    int y = LINES / 2 - letters.size() / 2;  // Center vertically
+    int x = COLS / 2 - letters[0].size() / 2;  // Center horizontally
+
+    // Display the letters
+    for (size_t i = 0; i < letters.size(); ++i) {
+        mvaddstr(y + i, x, letters[i].c_str());
+    }
+
+    // Highlight the selected letter
+    attron(A_REVERSE);  // Enable reverse attribute (highlight)
+    int row = selectedLetterIndex / 9;
+    int col = selectedLetterIndex % 9;
+    mvaddch(y + row, x + col * 4 + 1, letters[row][col * 4 + 1]);  // Highlight the selected letter
+    attroff(A_REVERSE);  // Disable reverse attribute
+}
+
+std::string getPlayerName() {
+    std::string playerName;
+    int selectedLetterIndex = 0;
+    int lettersChosen = 0;
+
+    while (lettersChosen < 3) {
+        erase();  // Clear the screen
+        drawNameTitle();
+        drawNameLetters(selectedLetterIndex);
+        mvprintw(LINES / 2 + 4, COLS / 2 - 5, "NOMBRE JUGADOR: %s", playerName.c_str());
+        int letter = getch();
+        switch (letter) {
+            case KEY_UP:
+                if (selectedLetterIndex >= 9) {
+                    selectedLetterIndex -= 9;
+                }
+                break;
+            case KEY_DOWN:
+                if (selectedLetterIndex + 9 < 27) {
+                    selectedLetterIndex += 9;
+                }
+                break;
+            case KEY_LEFT:
+                if (selectedLetterIndex % 9 != 0) {
+                    selectedLetterIndex--;
+                    if (selectedLetterIndex == 26) {
+                        selectedLetterIndex--;  // Skip the '-' character
+                    }
+                }
+                break;
+            case KEY_RIGHT:
+                if ((selectedLetterIndex + 1) % 9 != 0 && selectedLetterIndex < 26) {
+                    selectedLetterIndex++;
+                }
+                break;
+            case 10:  // Enter key
+                if (selectedLetterIndex < 26) {
+                    playerName += 'A' + selectedLetterIndex;
+                } else {
+                    playerName += '-';
+                }
+                lettersChosen++;
+                // Display the current player name
+                mvprintw(LINES / 2 + 4, COLS / 2 - 5, "NOMBRE JUGADOR: %s", playerName.c_str());
+                refresh();  // Refresh the screen to show updated player name
+                break;
+        }
+    }
+
+    return playerName;
+}
 
 enum BossSpawnState {           // Estados del boss Galaga para aparezca varias veces
     InitialWait,                // El boss se espera unos segundos antes de aparecer por primera vez
@@ -188,6 +283,8 @@ int main() {
 
         int finalScore = 0;
         bool won = false;
+        int choice = getch();               // Input del usuario
+
         srand(time(0));
         initialize();
         std::vector<std::string> titulo = {     // El arte del título
@@ -388,10 +485,26 @@ int main() {
             napms(6000);                                // Se genera un delay de 6 segundos
         }
 
-        std::string playerName = "Jugador";              // Se pone el nombre del jugador
+        
+        int lowestScore = highScores.getLowestScore();  // Obtener la menor puntuación
+
+    if (finalScore > lowestScore) {                     // Si la nueva puntuación es mayor a la menor puntuación
+        clear();
+        attron(COLOR_PAIR(TURRET_PAIR));
+        mvprintw(LINES / 2, COLS / 2 - 5, "NUEVA HIGH SCORE");
+        attroff(COLOR_PAIR(TURRET_PAIR));
+        refresh();                                      // Refrescar la pantalla
+        napms(2000);                                    // Delay de 2 segundos
+        std::string playerName = getPlayerName();       // Se obtiene el nombre del jugador
+        napms(1000);                                    // Delay de 1 segundo
+        attron(COLOR_PAIR(BOSS_PAIR));
+        mvprintw(LINES / 2 + 7, COLS / 2 - 5, "NOMBRE REGISTRADO");
+        attroff(COLOR_PAIR(BOSS_PAIR));
+        refresh();                                      // Refrescar la pantalla
+        napms(2000);                                    // Delay de 2 segundos
         // Se guarda el nombre y el puntaje
         highScores.updateHighScores(playerName, finalScore);
-        napms(6000);                                    // Se genera un delay de 6 segundos
+    }
 
         finalize();                                     // Terminar programa
 
