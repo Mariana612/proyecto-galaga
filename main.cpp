@@ -150,7 +150,7 @@ const int MAX_PLAYERS = 10;
 std::string names[MAX_PLAYERS] = {"Nombre1", "Nombre2", "Nombre3", "Nombre4", "Nombre5", "Nombre6", "Nombre7", "Nombre8", "Nombre9", "Nombre10"};
 int scores[MAX_PLAYERS] = {100, 90, 80, 70, 60, 50, 40, 30, 20, 10};
 
-void drawFinalScore()
+/*void drawFinalScore()
 {
     int row, col;
     getmaxyx(stdscr, row, col); // Obtener el tamaño de la pantalla
@@ -183,7 +183,7 @@ void drawFinalScore()
     }
     refresh(); // Actualizar la pantalla
 
-}
+}*/
 
 
 void updateScore(char* score_line, int score)
@@ -280,7 +280,7 @@ int main() {
                         getch();                // Esperar a que se ingrese una tecla
                     }else if (highlight == 2) {
                         //Terminar el programa
-                        drawFinalScore();
+                        highScores.drawFinalScore();
                         getch();   // Esperar una entrada del usuario
 
                     }
