@@ -114,9 +114,7 @@ void HighScores::drawFinalScore() const{
     for (int i = 0; i < highScores.size(); ++i) {
         mvaddstr(row / 2 - 4 + i, (col - 37) / 2, format[i]);
     }
-    refresh();
-    
-
+    refresh(); 
 }
 
 // Obtener la puntuación más baja

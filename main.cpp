@@ -40,7 +40,8 @@ void initialize() {
         fprintf(stderr, "No se pudo inicializar SDL_mixer: %s\n", Mix_GetError());
         exit(1);
     }
-    Mix_Music *backgroundMusic = Mix_LoadMUS("MEGALOVANIA.mp3");                    // Canción que empieza cuando se inicia el programa
+    // Canción que empieza cuando se inicia el programa
+    Mix_Music *backgroundMusic = Mix_LoadMUS("MEGALOVANIA.mp3");
     if (!backgroundMusic) {
         fprintf(stderr, "No se pudo cargar la música: %s\n", Mix_GetError());
         exit(1);
@@ -52,7 +53,7 @@ void initialize() {
 void finalize() {
     Mix_CloseAudio();
     SDL_Quit();
-    endwin();                   // Se termina el curses
+    endwin();                                       // Se termina el curses
 }
 
 // --------------------MENÚ--------------------
@@ -146,53 +147,17 @@ void drawStars(const std::vector<Star>& stars) {        // Las estrellas son rep
 
 
 // --------------------FUNCIONES DE LA PUNTUACIÓN--------------------
-/*void drawFinalScore()
-{
-    int row, col;
-    getmaxyx(stdscr, row, col); // Obtener el tamaño de la pantalla
-    char header[][37] =
-        {
-            "     ___  ___ ___  _ __ ___        ",
-            "    / __|/ __/ _ \\| '__/ _ \\      ",
-            "    \\__ \\ (_| (_) | | |  __/       ",
-            "    |___/\\___\\___/|_|  \\___|       ",
-            "-----------------------------------",
-    };
-    clear();  
-    // Mostrar el encabezado en pantalla usando ncurse
-    for (int i = 0; i < 5; ++i)
-    {
-        mvprintw(row / 2 - 10 + i, (col - 37) / 2, header[i]);
-    }
-    char format[MAX_PLAYERS][60]; // Ensure enough space for the format
-
-    // Create the format strings
-    for (int i = 0; i < MAX_PLAYERS; ++i)
-    {
-        snprintf(format[i], sizeof(format[i]), " NAME: %-10s - SCORE: %d", names[i].c_str(), scores[i]);
-    }
-
-    // Mostrar en pantalla usando ncurses
-    for (int i = 0; i < MAX_PLAYERS; ++i)
-    {
-        mvprintw(row / 2 - 4 + i, (col - 37) / 2, format[i]);
-    }
-    refresh(); // Actualizar la pantalla
-
-}*/
-
-
 void updateScore(char* score_line, int score)
 {
-    sprintf(score_line,"SCORE:%-6d",score);
+    sprintf(score_line,"SCORE:%-7d",score);
 
 }
 
 void drawScore(int num) {
-    char score_lines[][12]=
+    char score_lines[][13]=
     {
-        "__________",
-        "SCORE:    ",
+        "___________",
+        "SCORE:     ",
 
     };
     int num_lines = sizeof(score_lines)/sizeof(score_lines[0]);
@@ -488,7 +453,7 @@ int main() {
             refresh();                                                          // Refrescar la pantalla
             napms(20);                                                          // Delay para desacelerar el loop
     
-            if (finalScore > 9999) {
+            if (finalScore > 30000) {
                 won = true;
                 break;
             }
@@ -528,7 +493,7 @@ int main() {
             // Imprimir puntuación
             mvprintw(LINES / 2 + 2, COLS / 2 - 5, "SCORE: %d",finalScore);
             refresh();                                  // Refrescar la pantalla
-            napms(6000);                                // Se genera un delay de 6 segundos
+            napms(4000);                                // Se genera un delay de 6 segundos
         }
         
         int lowestScore = highScores.getLowestScore();  // Obtener la menor puntuación
@@ -549,6 +514,11 @@ int main() {
             napms(2000);                                // Delay de 2 segundos
             // Se guarda el nombre y el puntaje
             highScores.updateHighScores(playerName, finalScore);
+            
+            clear();
+            highScores.drawFinalScore();
+            refresh();                                  // Refrescar la pantalla
+            napms(4000);                                // Delay de 2 segundos
         }
 
         finalize();                                     // Terminar programa
