@@ -11,6 +11,7 @@ public:
     void writeHighScores() const;
     void updateHighScores(const std::string& name, int score);
     void drawFinalScore() const;
+    int getLowestScore() const;
 
 private:
     // Estructura para cada jugador y su puntaje
@@ -81,7 +82,6 @@ void HighScores::updateHighScores(const std::string& name, int score) {
     }
 
     writeHighScores();                                                      // Se escriben las puntuaciones
-
 }
 
 void HighScores::drawFinalScore() const{
@@ -116,4 +116,13 @@ void HighScores::drawFinalScore() const{
     }
     refresh();
     
+
+}
+
+// Obtener la puntuación más baja
+int HighScores::getLowestScore() const {
+    if (highScores.empty()) {
+        return 0;                                                           // Si noy hay puntuaciones, retornar un 0
+    }
+    return highScores.back().score;                                         // El último elemento del vector es la menor puntuación
 }
