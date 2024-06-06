@@ -15,8 +15,6 @@ private:
     struct HighScore {
         std::string name;
         int score;
-
-        HighScore(const std::string& name, int score) : name(name), score(score) {}
     };
 
     static bool compareScores(const HighScore& a, const HighScore& b);
@@ -25,17 +23,16 @@ private:
     std::vector<HighScore> highScores;
 };
 
-// Constructor
 HighScores::HighScores(const std::string& filename) : filename(filename) {
     readHighScores();
 }
 
-// Comparar dos puntajes
+// Se comapran puntuaciones
 bool HighScores::compareScores(const HighScore& a, const HighScore& b) {
-    return a.score > b.score;  // Descending order
+    return a.score > b.score;
 }
 
-// Obtener el puntaje del .txt
+// Se lee lo que se encuentra en el archivo
 void HighScores::readHighScores() {
     std::ifstream file(filename);
     std::string line;
@@ -45,20 +42,19 @@ void HighScores::readHighScores() {
     if (file.is_open()) {
         while (std::getline(file, line)) {
             std::istringstream iss(line);
-            std::string name;
-            int score;
-            if (iss >> name >> score) {
-                highScores.emplace_back(name, score);
+            HighScore hs;
+            if (iss >> hs.name >> hs.score) {
+                highScores.push_back(hs);
             }
         }
         file.close();
     }
 
-    // Ordenar los puntajes de mayor a menor
+    // Se guardan de mayor a menor
     std::sort(highScores.begin(), highScores.end(), compareScores);
 }
 
-// Escrbir los puntajes en el .txt
+// Se escribe la puntuación
 void HighScores::writeHighScores() const {
     std::ofstream file(filename);
 
@@ -70,13 +66,13 @@ void HighScores::writeHighScores() const {
     }
 }
 
-// Agregar nuevo puntaje
+// Se actualizan las puntuaciones
 void HighScores::updateHighScores(const std::string& name, int score) {
     HighScore newScore{name, score};
     highScores.push_back(newScore);
     std::sort(highScores.begin(), highScores.end(), compareScores);
 
-    // Solo mantener los top 10 puntajes
+    // Se mantiene solo el top 10
     if (highScores.size() > 10) {
         highScores.resize(10);
     }
