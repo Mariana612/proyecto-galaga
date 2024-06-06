@@ -169,8 +169,9 @@ void drawScore(int num) {
     }
 }
 
+// --------------------REGISTRO DE NUEVO HIGH SCORE--------------------
 void drawNameTitle() {
-    std::vector<std::string> nameTitle;          // ASCII art de las instrucciones
+    std::vector<std::string> nameTitle;                     // ASCII art de las instrucciones
     nameTitle = {
             " ___  ___  __  _   __  _____  ___   __   ___    _   _   __   __ __  __  ___  ___ ",
             "| _\\ | __|/ _]| |/' _/|_   _|| _ \\ /  \\ | _ \\  | \\ | | /__\\ |  V  ||  \\| _ \\| __|",
@@ -181,11 +182,11 @@ void drawNameTitle() {
             "Solo 3 letras permitidas",
         };
     
-    int y = LINES / 2 - 7 - nameTitle.size() / 2;        // Imprimir las instrucciones en el centro
+    int y = LINES / 2 - 7 - nameTitle.size() / 2;           // Imprimir las instrucciones en el centro
     int x = COLS / 2 - nameTitle[0].size() / 2;
     for (size_t i = 0; i < nameTitle.size(); ++i) {
         attron(COLOR_PAIR(NORMAL_PAIR));
-        mvaddstr(y + i, x, nameTitle[i].c_str());    // Imprimir el texto
+        mvaddstr(y + i, x, nameTitle[i].c_str());           // Imprimir el texto
         attroff(COLOR_PAIR(NORMAL_PAIR));
     }
 }
@@ -197,67 +198,70 @@ void drawNameLetters(int selectedLetterIndex) {
         "[S] [T] [U] [V] [W] [X] [Y] [Z] [-]",
     };
 
-    int y = LINES / 2 - letters.size() / 2;  // Center vertically
-    int x = COLS / 2 - letters[0].size() / 2;  // Center horizontally
+    int y = LINES / 2 - letters.size() / 2;                 // Centrar el texto
+    int x = COLS / 2 - letters[0].size() / 2;
 
-    // Display the letters
+    // Imprimir las letras
     for (size_t i = 0; i < letters.size(); ++i) {
         mvaddstr(y + i, x, letters[i].c_str());
     }
 
-    // Highlight the selected letter
-    attron(A_REVERSE);  // Enable reverse attribute (highlight)
+    // Subrayar el char
+    attron(A_REVERSE);
     int row = selectedLetterIndex / 9;
     int col = selectedLetterIndex % 9;
-    mvaddch(y + row, x + col * 4 + 1, letters[row][col * 4 + 1]);  // Highlight the selected letter
-    attroff(A_REVERSE);  // Disable reverse attribute
+    mvaddch(y + row, x + col * 4 + 1, letters[row][col * 4 + 1]);
+    attroff(A_REVERSE);
 }
 
+// Obtener el nombre del jugador
 std::string getPlayerName() {
-    std::string playerName;
-    int selectedLetterIndex = 0;
-    int lettersChosen = 0;
+    std::string playerName;                                  // Variable que guarda el nombre del jugador
+    int selectedLetterIndex = 0;                             // Letra que se debe subrayar
+    int lettersChosen = 0;                                   // Letra escogida
 
     while (lettersChosen < 3) {
-        erase();  // Clear the screen
-        drawNameTitle();
-        drawNameLetters(selectedLetterIndex);
+        erase();                                            // Limpiar la pantalla
+        drawNameTitle();                                    // Mostrar el título
+        drawNameLetters(selectedLetterIndex);               // Mostrar las letras
+        // Se muestra el nombre del jugador
         mvprintw(LINES / 2 + 4, COLS / 2 - 5, "NOMBRE JUGADOR: %s", playerName.c_str());
-        int letter = getch();
+        int letter = getch();                               // Obtener input del usuario
         switch (letter) {
-            case KEY_UP:
-                if (selectedLetterIndex >= 9) {
-                    selectedLetterIndex -= 9;
+            case KEY_UP:                                    // Moverse para arriba
+                if (selectedLetterIndex >= 9) {             // Si lo seleccionado está mínimo en la segunda fila
+                    selectedLetterIndex -= 9;               // Se resta 9 para ir a la fila anterior
                 }
                 break;
-            case KEY_DOWN:
-                if (selectedLetterIndex + 9 < 27) {
-                    selectedLetterIndex += 9;
+            case KEY_DOWN:                                  // Moverse para abajo
+                if (selectedLetterIndex + 9 < 27) {         // Si la selección + 9 es menos de 27 (la cantidad de chars que se pueden escoger) 
+                    selectedLetterIndex += 9;               // Se suma 9 para ir a la siguiente fila
                 }
                 break;
-            case KEY_LEFT:
-                if (selectedLetterIndex % 9 != 0) {
-                    selectedLetterIndex--;
-                    if (selectedLetterIndex == 26) {
-                        selectedLetterIndex--;  // Skip the '-' character
+            case KEY_LEFT:                                  // Moverse para la izquierda
+                if (selectedLetterIndex % 9 != 0) {         // Si lo seleccionado no está al borde izquierdo (no es un múltiplo de 9)
+                    selectedLetterIndex--;                  // Se resta 1 para moverse un espacio a la izquierda
+                    if (selectedLetterIndex == 26) {        // Si se llega al char especial
+                        selectedLetterIndex--;              // Se decrementa en 1
                     }
                 }
                 break;
-            case KEY_RIGHT:
+            case KEY_RIGHT:                                 // Moverse para la derecha
+                // Si lo seleccionado no está al borde derecho y si al sumarle uno este no se pasa de la última posición
                 if ((selectedLetterIndex + 1) % 9 != 0 && selectedLetterIndex < 26) {
-                    selectedLetterIndex++;
+                    selectedLetterIndex++;                  // Se suma 1 para moverse un espacio a la derecha
                 }
                 break;
-            case 10:  // Enter key
-                if (selectedLetterIndex < 26) {
-                    playerName += 'A' + selectedLetterIndex;
+            case 10:                                        // Presionar enter
+                if (selectedLetterIndex < 26) {             // Si lo escogido es una letra
+                    playerName += 'A' + selectedLetterIndex;// Se guarda la letra escogida
                 } else {
-                    playerName += '-';
+                    playerName += '-';                      // Si se escogió el último char, se guarda el símbolo "-"
                 }
                 lettersChosen++;
-                // Display the current player name
+                // Se muestra el nombre del jugador
                 mvprintw(LINES / 2 + 4, COLS / 2 - 5, "NOMBRE JUGADOR: %s", playerName.c_str());
-                refresh();  // Refresh the screen to show updated player name
+                refresh();                                  // Refrescar la pantalla
                 break;
         }
     }
@@ -491,7 +495,7 @@ int main() {
     if (finalScore > lowestScore) {                     // Si la nueva puntuación es mayor a la menor puntuación
         clear();
         attron(COLOR_PAIR(TURRET_PAIR));
-        mvprintw(LINES / 2, COLS / 2 - 5, "NUEVA HIGH SCORE");
+        mvprintw(LINES / 2, COLS / 2 - 5, "NUEVO HIGH SCORE");
         attroff(COLOR_PAIR(TURRET_PAIR));
         refresh();                                      // Refrescar la pantalla
         napms(2000);                                    // Delay de 2 segundos
