@@ -145,6 +145,46 @@ void drawStars(const std::vector<Star>& stars) {        // Las estrellas son rep
 
 
 // --------------------FUNCIONES DE LA PUNTUACIÓN--------------------
+const int MAX_PLAYERS = 10;
+std::string names[MAX_PLAYERS] = {"Nombre1", "Nombre2", "Nombre3", "Nombre4", "Nombre5", "Nombre6", "Nombre7", "Nombre8", "Nombre9", "Nombre10"};
+int scores[MAX_PLAYERS] = {100, 90, 80, 70, 60, 50, 40, 30, 20, 10};
+
+void drawFinalScore()
+{
+    int row, col;
+    getmaxyx(stdscr, row, col); // Obtener el tamaño de la pantalla
+    char header[][37] =
+        {
+            "     ___  ___ ___  _ __ ___        ",
+            "    / __|/ __/ _ \\| '__/ _ \\      ",
+            "    \\__ \\ (_| (_) | | |  __/       ",
+            "    |___/\\___\\___/|_|  \\___|       ",
+            "-----------------------------------",
+    };
+    clear();  
+    // Mostrar el encabezado en pantalla usando ncurse
+    for (int i = 0; i < 5; ++i)
+    {
+        mvprintw(row / 2 - 10 + i, (col - 37) / 2, header[i]);
+    }
+    char format[MAX_PLAYERS][60]; // Ensure enough space for the format
+
+    // Create the format strings
+    for (int i = 0; i < MAX_PLAYERS; ++i)
+    {
+        snprintf(format[i], sizeof(format[i]), " NAME: %-10s - SCORE: %d", names[i].c_str(), scores[i]);
+    }
+
+    // Mostrar en pantalla usando ncurses
+    for (int i = 0; i < MAX_PLAYERS; ++i)
+    {
+        mvprintw(row / 2 - 4 + i, (col - 37) / 2, format[i]);
+    }
+    refresh(); // Actualizar la pantalla
+
+}
+
+
 void updateScore(char* score_line, int score)
 {
     sprintf(score_line,"SCORE:%-6d",score);
@@ -205,7 +245,7 @@ int main() {
         drawTitulo(titulo);                     // Llamar a la función que muestra el título en pantalla
         napms(5000);                            // Delay de 5 segundos
         // Opciones del menú
-        std::vector<std::string> menuOptions = {"INICIAR JUEGO", "INSTRUCCIONES", "    SALIR    "};
+        std::vector<std::string> menuOptions = {"INICIAR JUEGO", "INSTRUCCIONES", " PUNTUACION  ","    SALIR    "};
         int highlight = 0;                      // Contador de opción señalada
         bool running = true;                    // Se está corriendo el menú
         while (running) {
@@ -233,6 +273,12 @@ int main() {
                         drawInstructions();
                         getch();                // Esperar a que se ingrese una tecla
                     }else if (highlight == 2) {
+                        //Terminar el programa
+                        drawFinalScore();
+                        getch();   // Esperar una entrada del usuario
+
+                    }
+                    else if (highlight == 3) {
                         //Terminar el programa
                         finalize();
                         return 0;
