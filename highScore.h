@@ -10,6 +10,7 @@ public:
     void readHighScores();
     void writeHighScores() const;
     void updateHighScores(const std::string& name, int score);
+    void drawFinalScore() const;
 
 private:
     // Estructura para cada jugador y su puntaje
@@ -80,4 +81,39 @@ void HighScores::updateHighScores(const std::string& name, int score) {
     }
 
     writeHighScores();                                                      // Se escriben las puntuaciones
+
+}
+
+void HighScores::drawFinalScore() const{
+    int row, col;
+    getmaxyx(stdscr, row, col); // Obtener el tamaño de la pantalla
+    char header[][37] =
+        {
+            "     ___  ___ ___  _ __ ___        ",
+            "    / __|/ __/ _ \\| '__/ _ \\      ",
+            "    \\__ \\ (_| (_) | | |  __/       ",
+            "    |___/\\___\\___/|_|  \\___|       ",
+            "-----------------------------------",
+    };
+    clear();  
+    // Mostrar el encabezado en pantalla usando ncurse
+    for (int i = 0; i < 5; ++i)
+    {
+        mvaddstr(row / 2 - 10 + i, (col - 37) / 2, header[i]);
+    }
+
+    const int MAX_PLAYERS = 10;
+    char format[MAX_PLAYERS][60];
+
+    getmaxyx(stdscr, row, col);
+
+    for (int i = 0; i < highScores.size(); ++i) {
+        snprintf(format[i], sizeof(format[i]), " NAME: %-10s - SCORE: %d", highScores[i].name.c_str(), highScores[i].score);
+    }
+
+    for (int i = 0; i < highScores.size(); ++i) {
+        mvaddstr(row / 2 - 4 + i, (col - 37) / 2, format[i]);
+    }
+    refresh();
+    
 }
