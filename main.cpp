@@ -86,13 +86,17 @@ void drawTitulo(const std::vector<std::string>& titulo) {
 
 // --------------------INSTRUCCIONES--------------------
 void drawInstructions() {
-    std::vector<std::string> instructions;          // ASCII art de las instrucciones
-    instructions = {
+    std::vector<std::string> instructionsTitle;          // ASCII art del título de las instrucciones
+    instructionsTitle = {
             "    ___ _  _  ___ _____ ___ _   _  ___ ___ ___ ___  _  _ ___ ___ ",
             "   |_ _| \\| /  __|_   _| _ \\ | | |/ __/ __|_ _/ _ \\| \\| | __/ __|",
             "    | || .  \\__  \\ | | |   / |_| | (_ | (_ | | (_) | .` | _|\\__ \\",
             "   |___|_|\\_| ___/ |_| |_|_\\ ___/ \\___\\___|___\\___/|_|\\_|___|___/",
-            "                                                                ",
+
+            };
+    std::vector<std::string> instructions;              // ASCII art de las instrucciones
+    instructions = {
+
             "CONTROLES: [<-] para moverse a la izquierda, [->] para moverse a la derecha,",
             " ",
             "           [_____] para disparar",
@@ -101,10 +105,10 @@ void drawInstructions() {
             " ",
             "TRES TIPOS DE ENEMIGOS:",
             " ",
-            "  /---\\     .'='.      /---\\",
-            "  \\-o-/     /|=|\\     --WWW--",
-            "                     {#######}",
-            " ",
+            "  doob     .'='.      /---\\",
+            "  ^/\\^     /|=|\\     --WWW--",
+            "                    {#o#o#o#}",
+            " ",  
             "El último es el boss Galaga. Si el jugador tiene suficientes vidas se lleva la",
             "nave del jugador. Si se destruye al enemigo, se recupera la nave y el jugador",
             "puede utilizar ambas.",
@@ -112,13 +116,21 @@ void drawInstructions() {
             "PRESIONE CUALQUIER TECLA PARA DEVOLVERSE AL MENU...",
         };
     
-    clear();                                            // Limpiar pantalla
-    int y = LINES / 2 - instructions.size() / 2;        // Imprimir las instrucciones en el centro
+    clear();                                                          // Limpiar pantalla
+    int yTitle = LINES / 2 - 7 - instructionsTitle.size() / 2;        // Imprimir las instrucciones en el centro
+    int xTitle = COLS / 2 - instructionsTitle[0].size() / 2;
+    for (size_t i = 0; i < instructionsTitle.size(); ++i) {
+        attron(COLOR_PAIR(LIFE_PAIR));
+        mvaddstr(yTitle + i, xTitle, instructionsTitle[i].c_str());   // Imprimir el texto
+        attroff(COLOR_PAIR(LIFE_PAIR));
+    }
+
+    int y = LINES / 2 + 4 - instructions.size() / 2;                  // Imprimir las instrucciones en el centro
     int x = COLS / 2 - instructions[0].size() / 2;
     for (size_t i = 0; i < instructions.size(); ++i) {
-        mvaddstr(y + i, x, instructions[i].c_str());    // Imprimir el texto
+        mvaddstr(y + i, x, instructions[i].c_str());                  // Imprimir el texto
     }
-    refresh();                                          // Refrescar la pantalla
+    refresh();                                                        // Refrescar la pantalla
 }
 
 //--------------------ESTRELLAS--------------------
@@ -332,7 +344,7 @@ int main() {
                         // Iniciar el juego
                         clear();                // Limpiar pantalla
                                                 // Imprimir mensaje de inicio del juego
-                        mvprintw(LINES / 2, COLS / 2 - 5, "EMPEZANDO JUEGO...");
+                        mvprintw(LINES / 2, COLS / 2 - 7, "EMPEZANDO JUEGO...");
                         refresh();              // Refrescar la pantalla
                         napms(2000);            // Delay de 2 segundos
                         running = false;        // Salirse del loop a donde está el juego
@@ -343,6 +355,7 @@ int main() {
                     }else if (highlight == 2) {
                         //Terminar el programa
                         highScores.drawFinalScore();
+                        mvprintw(LINES / 2 + 7, COLS / 2 - 25, "PRESIONE CUALQUIER TECLA PARA DEVOLVERSE AL MENU...");
                         getch();   // Esperar una entrada del usuario
 
                     }
@@ -501,7 +514,7 @@ int main() {
         if (finalScore > lowestScore) {                 // Si la nueva puntuación es mayor a la menor puntuación
             clear();
             attron(COLOR_PAIR(TURRET_PAIR));
-            mvprintw(LINES / 2, COLS / 2 - 5, "NUEVO HIGH SCORE");
+            mvprintw(LINES / 2, COLS / 2 - 7, "NUEVO HIGH SCORE");
             attroff(COLOR_PAIR(TURRET_PAIR));
             refresh();                                  // Refrescar la pantalla
             napms(2000);                                // Delay de 2 segundos

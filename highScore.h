@@ -99,7 +99,9 @@ void HighScores::drawFinalScore() const{
     // Mostrar el encabezado en pantalla usando ncurse
     for (int i = 0; i < 5; ++i)
     {
+        attron(COLOR_PAIR(SHIP_PAIR));
         mvaddstr(row / 2 - 10 + i, (col - 37) / 2, header[i]);
+        attroff(COLOR_PAIR(SHIP_PAIR));
     }
 
     const int MAX_PLAYERS = 10;
@@ -119,8 +121,8 @@ void HighScores::drawFinalScore() const{
 
 // Obtener la puntuación más baja
 int HighScores::getLowestScore() const {
-    if (highScores.empty()) {
-        return 0;                                                           // Si noy hay puntuaciones, retornar un 0
+    if (highScores.size() < 10) {
+        return 0;                                                           // Si hay menos de 10 puntuaciones, retornar un 0
     }
     return highScores.back().score;                                         // El último elemento del vector es la menor puntuación
 }
