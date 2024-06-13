@@ -231,7 +231,7 @@ int animationCounter = 0;
 // --------------------BOSS GALAGA--------------------
 class BossEnemy : public Enemy {
 public:
-     enum State { Descending, Holding, LateralMove, HasPlayer };
+    enum State { Descending, Holding, LateralMove, HasPlayer };
 
 private:
     State currentState;
@@ -240,8 +240,9 @@ private:
     int moveThreshold;                           // Threshold a llegar antes de moverse hacia abajo
 
 public:
-int animation = 0;
-int animationCounter = 0;
+    int animation = 0;
+    int animationCounter = 0;
+    
     BossEnemy(int posX) : Enemy(posX, 0), currentState(Descending), lateralDirection(1), moveCounter(0), moveThreshold(10) {
         puntuacion = 500;
         // Arte del boss Galaga
@@ -251,65 +252,63 @@ int animationCounter = 0;
             "{#o#o#o#}"
         };
     }
-         void changeArtBoss(int flag){
-        if(flag==1){
-        std::vector<std::string> art2 = {
-            "  /---\\",
-            " --WWW--",
-            "{#o#o#o#}"
-        };
-        art = art2;
-         
-        }
-        else{
-        std::vector<std::string> art2 = {
-            "  /---\\",
-            " --WWW--",
-            "{0#0#0#0}"
-        };
-        art = art2;
-        }
-     }
 
-    State getCurrentState() const{               // Se obtiene el estado actual
+    void changeArtBoss(int flag){
+        if(flag==1){
+            std::vector<std::string> art2 = {
+                "  /---\\",
+                " --WWW--",
+                "{#o#o#o#}"
+            };
+            art = art2;
+        } else {
+            std::vector<std::string> art2 = {
+                "  /---\\",
+                " --WWW--",
+                "{0#0#0#0}"
+            };
+            art = art2;
+        }
+    }
+
+    State getCurrentState() const {               // Se obtiene el estado actual
         return currentState;
     }
 
-    void setCurrentState(State state) {          // Se guarda el estado deseado
+    void setCurrentState(State state) {           // Se guarda el estado deseado
         currentState = state;
     }
 
     // Actualizar la posición del enemigo
     void update(int playerX, int playerY, Nave& player) override {
-                // Update movimiento
-        if(animation == 0 && animationCounter == 25){
+        // Update animation
+        if (animation == 0 && animationCounter == 25) {
             animation = 1;
+        } else if (animation == 1 && animationCounter == 25) {
+            animation = 0;
         }
-        else if (animation == 1 && animationCounter == 25){
-            animation = 0;}
 
-        if(animationCounter == 25){
-        animationCounter = -1;
+        if (animationCounter == 25) {
+            animationCounter = -1;
         }
         animationCounter++;
-        changeArtBoss(animation)   ; 
+        changeArtBoss(animation);
 
         switch (currentState) {
             case Descending:
-
                 moveCounter++;                   // Incrementar el contador
                 if (moveCounter >= moveThreshold) {
                     moveCounter = 0;             // Inicializar el contador 
                     y += 1;                      // Se mueve lentamente abajo
-                    if (y >= LINES / 1.3) { 
+                    if (y >= playerY-2) {          // Cambia estado a holding cuando alcanza la posición del jugador
                         currentState = Holding;  // Cambia estado a holding
                     }
                 }
                 break;
 
             case Holding:
-                    currentState = LateralMove;  // Cambia a lateralMove si no toca al jugador
-                    y = 0; 
+                currentState = LateralMove;  // Cambia a lateralMove si no toca al jugador
+                y = 0; 
                 break;
 
             case HasPlayer:
@@ -326,7 +325,6 @@ int animationCounter = 0;
                     lateralDirection *= -1;     // Cambia de dirección al tocar los bordes de la pantalla
                 }
                 break;
-
         }
     }
 
@@ -339,9 +337,9 @@ int animationCounter = 0;
     }
 
     void draw() override {
-        if (!isAlive) return;                   //No dibujar si no esta vivo
+        if (!isAlive) return;                   // No dibujar si no esta vivo
         attron(COLOR_PAIR(BOSS_PAIR));
-        Enemy::draw();                          //Dibujar al enemigo
+        Enemy::draw();                          // Dibujar al enemigo
         attroff(COLOR_PAIR(BOSS_PAIR));
     }
 };
